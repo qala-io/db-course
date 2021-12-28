@@ -28,7 +28,9 @@ class Snapshot {
      * is in progress), didn't get why:
      * https://github.com/postgres/postgres/blob/def5b065ff22a16a80084587613599fe15627213/src/backend/utils/time/snapmgr.c#L2242
      */
-    private boolean isInSnapshot(TransactionId tx) {
+    public boolean isInSnapshot(TransactionId tx) {
+        if(tx == TransactionId.NULL)
+            return false;
         if(tx.precedes(xmin))
             return true;
         if(tx.followsOrEqual(xmax))

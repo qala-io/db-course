@@ -8,6 +8,7 @@ package io.qala.db;
 public class Tuple {
     final Object[] data;
     TransactionId beginTx, endTx, readTx;
+    TransactionStatus beginTxStatus, endTxStatus;
     volatile TransactionId currentWriter;
     Tuple nextVersion;
 

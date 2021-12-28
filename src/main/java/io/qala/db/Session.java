@@ -13,7 +13,7 @@ public class Session {
 
     public void beginTx() {
         TransactionId txId = new TransactionId((int) System.nanoTime());
-        tx = new Transaction(txId, db.createSnapshot());
+        tx = new Transaction(txId, db.createSnapshot(), transactions);
         db.addActiveTx(tx);
     }
     public void commit() {

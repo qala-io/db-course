@@ -2,6 +2,7 @@ package io.qala.db;
 
 class TransactionId {
     private final int id;
+    public static final TransactionId NULL = new TransactionId(0);
 
     public TransactionId(int id) {
         this.id = id;
