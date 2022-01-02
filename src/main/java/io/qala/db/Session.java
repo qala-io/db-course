@@ -13,7 +13,7 @@ public class Session {
 
     public void beginTx() {
         TransactionId txId = new TransactionId((int) System.nanoTime());
-        tx = new Transaction(txId, db.createSnapshot(), transactions);
+        tx = new Transaction(txId, db.createSnapshot(), db.getTransactionsStatus());
         db.addActiveTx(tx);
     }
     public void commit() {
@@ -22,13 +22,13 @@ public class Session {
     }
 
     public void insert(String rel, Tuple t) {
-        t.beginTx = tx.id;
+        t.xmin = tx.id;
         db.insert(rel, t);
     }
     public List<Tuple> select(String rel) {
         List<Tuple> resultSet = new ArrayList<>();
         for (Tuple tuple : db.select(rel))
-            if(tx.read(tuple))
+            if(tx.canRead(tuple))
                 resultSet.add(tuple);
         return resultSet;
     }

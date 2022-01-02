@@ -10,7 +10,9 @@ class Snapshot {
     final TransactionId xmax, xmin;
     final Set<TransactionId> inProgress;
 
-    Snapshot(TransactionId xmax, TransactionId xmin, Set<TransactionId> inProgress) {
+    Snapshot(TransactionId xmin, TransactionId xmax, Set<TransactionId> inProgress) {
+        for (TransactionId active : inProgress)
+            assert active.between(xmin, xmax);
         this.xmax = xmax;
         this.xmin = xmin;
         this.inProgress = new HashSet<>(inProgress);
@@ -20,7 +22,7 @@ class Snapshot {
      * https://github.com/postgres/postgres/blob/def5b065ff22a16a80084587613599fe15627213/src/backend/access/heap/heapam_visibility.c#L959
      */
     public boolean isVisible(Tuple t) {
-        return isInSnapshot(t.beginTx) && !isInSnapshot(t.endTx);
+        return isInSnapshot(t.xmin) && !isInSnapshot(t.xmax);
     }
 
     /**
@@ -28,14 +30,13 @@ class Snapshot {
      * is in progress), didn't get why:
      * https://github.com/postgres/postgres/blob/def5b065ff22a16a80084587613599fe15627213/src/backend/utils/time/snapmgr.c#L2242
      */
-    public boolean isInSnapshot(TransactionId tx) {
-        if(tx == TransactionId.NULL)
-            return false;
-        if(tx.precedes(xmin))
+    public boolean isInSnapshot(TransactionId xid) {
+        TransactionId.assertNotNull(xid);
+        if(xid.precedes(xmin))
             return true;
-        if(tx.followsOrEqual(xmax))
+        if(xid.followsOrEqual(xmax))
             return false;
-        // if it's xmin < tx < xmax, then check if it was running at the time of creating snapshot:
-        return !inProgress.contains(tx);
+        // if it's xmin < xid < xmax, then check if it was running at the time of creating snapshot:
+        return !inProgress.contains(xid);
     }
 }

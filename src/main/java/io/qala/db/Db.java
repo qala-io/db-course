@@ -6,6 +6,8 @@ public class Db {
     private final Map<String, Relation> relations = new HashMap<>();
     private final Set<TransactionId> activeTxs = new HashSet<>();
     private volatile TransactionId lastCommittedTx, lastStartedTx;
+    // todo: fill it
+    private final Transactions transactionHistory = new Transactions();
 
     public Db(String relName, Relation rel) {
         this.relations.put(relName, rel);
@@ -30,5 +32,8 @@ public class Db {
      */
     public Snapshot createSnapshot() {
         return new Snapshot(lastCommittedTx, lastStartedTx, activeTxs);
+    }
+    public Transactions getTransactionsStatus() {
+        return transactionHistory;
     }
 }
