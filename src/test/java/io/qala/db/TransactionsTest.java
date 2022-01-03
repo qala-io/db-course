@@ -37,4 +37,9 @@ public class TransactionsTest {
             result.commit(xid);
         return result;
     }
+    public static Transactions transactions(TransactionId xid, TransactionStatus status) {
+        Transactions history = new Transactions();
+        history.setStatus(xid, status);
+        return history;
+    }
 }

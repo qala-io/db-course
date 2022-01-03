@@ -4,14 +4,13 @@ import org.junit.Test;
 
 import static io.qala.datagen.RandomShortApi.integer;
 import static io.qala.db.SnapshotTest.snapshot;
+import static io.qala.db.TransactionId.NULL;
 import static io.qala.db.TransactionId.xid;
-import static io.qala.db.TransactionStatus.COMMITTED;
-import static io.qala.db.TransactionStatus.INVALID;
-import static io.qala.db.TransactionsTest.committed;
+import static io.qala.db.TransactionStatus.*;
+import static io.qala.db.TransactionsTest.*;
 import static io.qala.db.TupleTest.deleted;
 import static io.qala.db.TupleTest.inserted;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 public class TransactionCanReadXmaxTests {
     @Test public void tupleIsInvisible_ifCurrentTxDeletedIt() {
@@ -38,5 +37,33 @@ public class TransactionCanReadXmaxTests {
         t.xmaxStatus = INVALID;
         Transaction x = new Transaction(t.xmax.add(-1), snapshot(t.xmax.add(-1), t.xmax), new Transactions());
         assertTrue(x.canRead(t));
+    }
+    @Test public void tupleIsVisible_ifDeletingTxAborted_xmaxStatusInTuple() {
+        Tuple t = deleted();
+        t.xmaxStatus = ABORTED;
+        Transaction x = new Transaction(t.xmax.add(1), snapshot(t.xmax, t.xmax.add(1)), new Transactions());
+        assertTrue(x.canRead(t));
+    }
+    @Test public void tupleIsVisible_ifDeletingTxAborted_xmaxStatusInHistory() {
+        Tuple t = deleted();
+        t.xmaxStatus = INVALID;
+        Transaction x = new Transaction(t.xmax.add(1), snapshot(t.xmax, t.xmax.add(1)), aborted(t.xmax));
+        assertTrue(x.canRead(t));
+    }
+    @Test public void updatesTupleXmaxStatusIfTxFinished() {
+        Tuple t = deleted();
+        t.xmaxStatus = INVALID;
+        TransactionStatus newStatus = TransactionStatus.random();
+        Transaction x = new Transaction(t.xmin.add(1), snapshot(t.xmax, t.xmax.add(1)), transactions(t.xmax, newStatus));
+        x.canRead(t);
+        assertEquals(newStatus, t.xmaxStatus);
+    }
+    @Test public void ifXmaxIsNull_XmaxStatusChangesToAborted() {
+        Tuple t = inserted();
+        t.xmax = NULL;
+        t.xmaxStatus = TransactionStatus.random();
+        Transaction x = new Transaction(t.xmin.add(1), snapshot(t.xmin, t.xmin.add(1)), new Transactions());
+        assertTrue(x.canRead(t));
+        assertEquals(ABORTED, t.xmaxStatus);
     }
 }

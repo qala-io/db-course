@@ -1,5 +1,6 @@
 package io.qala.db;
 
+import static io.qala.db.TransactionStatus.ABORTED;
 import static io.qala.db.TransactionStatus.INVALID;
 
 /**
@@ -10,7 +11,7 @@ import static io.qala.db.TransactionStatus.INVALID;
 public class Tuple {
     final Object[] data;
     TransactionId xmin, xmax = TransactionId.NULL, readTx;
-    TransactionStatus xminStatus = INVALID, xmaxStatus = INVALID;
+    TransactionStatus xminStatus = INVALID, xmaxStatus = ABORTED;
     volatile TransactionId currentWriter;
     Tuple nextVersion;
 

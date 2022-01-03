@@ -8,10 +8,13 @@ import static io.qala.db.TransactionId.assertNotNull;
 public class Transactions {
     private final ConcurrentMap<TransactionId, TransactionStatus> status = new ConcurrentHashMap<>();
     public void commit(TransactionId xid) {
-        this.status.put(assertNotNull(xid), TransactionStatus.COMMITTED);
+        setStatus(xid, TransactionStatus.COMMITTED);
     }
     public void abort(TransactionId xid) {
-        this.status.put(assertNotNull(xid), TransactionStatus.ABORTED);
+        setStatus(xid, TransactionStatus.ABORTED);
+    }
+    public void setStatus(TransactionId xid, TransactionStatus status) {
+        this.status.put(assertNotNull(xid), status);
     }
 
     public boolean isCommitted(TransactionId xid) {

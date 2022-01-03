@@ -7,6 +7,9 @@ import static io.qala.db.TransactionStatus.COMMITTED;
 import static io.qala.db.TransactionStatus.INVALID;
 
 public class TupleTest {
+    public static Tuple inserted() {
+        return inserted(xid(integer()));
+    }
     public static Tuple inserted(TransactionId xmin) {
         return tuple(xmin, NULL, COMMITTED, INVALID);
     }

@@ -3,8 +3,7 @@ package io.qala.db;
 import java.util.HashSet;
 import java.util.Set;
 
-import static io.qala.db.TransactionStatus.COMMITTED;
-import static io.qala.db.TransactionStatus.INVALID;
+import static io.qala.db.TransactionStatus.*;
 
 public class Transaction {
     final TransactionId id;
@@ -56,7 +55,7 @@ public class Transaction {
     }
     private TransactionStatus getEndTxStatus(Tuple t) {
         if(t.xmax == TransactionId.NULL)
-            return null;
+            return ABORTED;
         if(t.xmaxStatus != INVALID)
             return t.xmaxStatus;
         return transactions.getStatus(t.xmax);
