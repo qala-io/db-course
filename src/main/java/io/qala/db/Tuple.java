@@ -29,8 +29,9 @@ public class Tuple {
         this.currentWriter = null;
     }
     public Tuple getLatestVersion(Tuple oldVersion) {
-        while(oldVersion.nextVersion != null)
-            oldVersion = oldVersion.nextVersion;
-        return oldVersion;
+        Tuple nextVersion = oldVersion;
+        while(nextVersion.nextVersion != null)
+            nextVersion = nextVersion.nextVersion;
+        return nextVersion;
     }
 }
