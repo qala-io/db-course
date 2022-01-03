@@ -55,9 +55,9 @@ public class Transaction {
         return transactions.getStatus(t.xmin);
     }
     private TransactionStatus getEndTxStatus(Tuple t) {
-        if(t.xmax == null)
+        if(t.xmax == TransactionId.NULL)
             return null;
-        if(t.xmaxStatus != null)
+        if(t.xmaxStatus != INVALID)
             return t.xmaxStatus;
         return transactions.getStatus(t.xmax);
     }

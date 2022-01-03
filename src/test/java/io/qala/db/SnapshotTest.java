@@ -57,6 +57,9 @@ public class SnapshotTest {
     public static Snapshot snapshot(int xmin, int xmax, TransactionId ... active) {
         return new Snapshot(xid(xmin), xid(xmax), Set.of(active));
     }
+    public static Snapshot snapshot(TransactionId xmin, TransactionId xmax, TransactionId ... active) {
+        return new Snapshot(xmin, xmax, Set.of(active));
+    }
 
     private static int xmax(int xmin) {
         //at some point we need to implement tx overflow

@@ -5,5 +5,8 @@ import org.junit.runners.Suite;
 import org.junit.runners.Suite.SuiteClasses;
 
 @RunWith(Suite.class)
-@SuiteClasses({TransactionCanReadXminTest.class})
+@SuiteClasses({
+        TransactionCanReadXminTests.class,
+        TransactionCanReadXmaxTests.class,
+})
 public class TransactionTest {}

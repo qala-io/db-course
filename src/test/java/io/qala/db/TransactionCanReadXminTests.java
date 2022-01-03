@@ -10,7 +10,7 @@ import static io.qala.db.TransactionsTest.committed;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-public class TransactionCanReadXminTest {
+public class TransactionCanReadXminTests {
     @Test public void tupleIsVisible_ifXminInSnapshot_andXminCommittedIsSet() {
         Tuple t = new Tuple(null);
         t.xmin = xid(integer(-1, 9));
@@ -18,7 +18,7 @@ public class TransactionCanReadXminTest {
         Transaction x = new Transaction(xid(10), snapshot(9, 11), new Transactions());
         assertTrue(x.canRead(t));
     }
-    @Test public void tupleIsVisible_ifXminIsCurrent() {
+    @Test public void tupleIsVisible_ifCurrentTxCreatedIt() {
         Tuple t = new Tuple(null);
         t.xmin = xid(integer());
         t.xminStatus = TransactionStatus.random();
@@ -53,7 +53,7 @@ public class TransactionCanReadXminTest {
         Transaction x = new Transaction(xid(10), snapshot(9, 11), aborted(t.xmin));
         assertFalse(x.canRead(t));
     }
-    @Test public void tupleIsInvisible_ifInXminInSnapshotButXminStatusIsUnknown_andActualTxIsStillActive() {
+    @Test public void tupleIsInvisible_ifXminInSnapshotButXminStatusIsUnknown_andActualTxIsStillActive() {
         Tuple t = new Tuple(null);
         t.xmin = xid(integer(8, 9));
         t.xminStatus = TransactionStatus.INVALID;

@@ -31,6 +31,10 @@ class TransactionId {
     public boolean followsOrEqual(TransactionId that) {
         return this.id >= that.id;
     }
+    public TransactionId add(int offset) {
+        //noinspection ConstantConditions
+        return new TransactionId(id + offset);
+    }
     @Override public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
