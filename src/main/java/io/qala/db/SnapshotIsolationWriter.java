@@ -1,6 +1,6 @@
 package io.qala.db;
 
-public class SnapshotIsolationWriter {
+public class SnapshotIsolationWriter implements TxWriter {
     final TransactionId id;
     private final Snapshot snapshot;
     private final Transactions transactions;
@@ -11,9 +11,9 @@ public class SnapshotIsolationWriter {
         this.transactions = transactions;
     }
 
-    public boolean write(Tuple oldVersion, Object[] data) {
-        Tuple latest = oldVersion.getLatestVersion(oldVersion);
-        waitIfLocked(latest);
+    public Tuple write(Tuple oldVersion, Object[] data) {
+//        Tuple latest = oldVersion.getLatestVersion(oldVersion);
+        waitIfLocked(oldVersion);
         // If another tx updated the tuple concurrently:
         // - Read Committed would simply re-evaluate where condition and continue updating
         //   the tuple if still satisfied
@@ -23,7 +23,7 @@ public class SnapshotIsolationWriter {
         newVersion.xmin = newVersion.currentWriter = id;
         oldVersion.nextVersion = newVersion;
         oldVersion.xmax = id;
-        return true;
+        return newVersion;
     }
     private void waitIfLocked(Tuple latest) {
         // wait until it's unlocked, need to use something else instead of spin lock

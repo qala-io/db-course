@@ -12,7 +12,7 @@ import static io.qala.db.TupleTest.deleted;
 import static io.qala.db.TupleTest.inserted;
 import static org.junit.Assert.*;
 
-public class TransactionCanReadXmaxTests {
+public class SnapshotIsolationReaderXmaxTests {
     @Test public void tupleIsInvisible_ifCurrentTxDeletedIt() {
         Tuple t = inserted(xid(integer()));
         t.xmax = xid(integer());

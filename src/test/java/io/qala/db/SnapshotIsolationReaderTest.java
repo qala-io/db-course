@@ -6,7 +6,7 @@ import org.junit.runners.Suite.SuiteClasses;
 
 @RunWith(Suite.class)
 @SuiteClasses({
-        TransactionCanReadXminTests.class,
-        TransactionCanReadXmaxTests.class,
+        SnapshotIsolationReaderXminTests.class,
+        SnapshotIsolationReaderXmaxTests.class,
 })
-public class TransactionTest {}
+public class SnapshotIsolationReaderTest {}

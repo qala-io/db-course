@@ -8,7 +8,7 @@ public class Transaction {
     private final Set<Tuple> readTuples = new HashSet<>();
     private final Set<Tuple> writeTuples = new HashSet<>();
     private final SnapshotIsolationReader reader;
-    private final SnapshotIsolationWriter writer;
+    private final TxWriter writer;
 
     public Transaction(TransactionId id, Snapshot snapshot, Transactions transactions) {
         this.id = id;
@@ -20,7 +20,7 @@ public class Transaction {
         return reader.canRead(t);
     }
 
-    public boolean update(Tuple oldVersion, Object[] data) {
+    public Tuple update(Tuple oldVersion, Object[] data) {
         return writer.write(oldVersion, data);
     }
 
