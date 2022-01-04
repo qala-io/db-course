@@ -12,7 +12,7 @@ class Snapshot {
 
     Snapshot(TxId xmin, TxId xmax, Set<TxId> inProgress) {
         for (TxId active : inProgress)
-            assert active.between(xmin, xmax);
+            assert xmin.precedes(active) && xmax.followsOrEqual(active);
         this.xmax = xmax;
         this.xmin = xmin;
         this.inProgress = new HashSet<>(inProgress);

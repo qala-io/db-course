@@ -4,7 +4,10 @@ import java.util.Objects;
 
 class TxId {
     private final Integer id;
-    public static final TxId NULL = new TxId();
+    public static final TxId
+            NULL = new TxId(),
+            MIN = new TxId(Integer.MIN_VALUE),
+            MAX = new TxId(Integer.MAX_VALUE);
 
     private TxId() {
         this.id = null;
@@ -23,6 +26,8 @@ class TxId {
     }
 
     public boolean between(TxId beginTx, TxId endTx) {
+        assertNotNull(beginTx);
+        assertNotNull(endTx);
         return beginTx.id < id && (endTx == NULL || id < endTx.id);
     }
     public boolean precedes(TxId that) {
