@@ -7,11 +7,11 @@ import java.util.Set;
  * https://github.com/postgres/postgres/blob/ca3b37487be333a1d241dab1bbdd17a211a88f43/src/include/utils/snapshot.h#L142
  */
 class Snapshot {
-    final TransactionId xmax, xmin;
-    final Set<TransactionId> inProgress;
+    final TxId xmax, xmin;
+    final Set<TxId> inProgress;
 
-    Snapshot(TransactionId xmin, TransactionId xmax, Set<TransactionId> inProgress) {
-        for (TransactionId active : inProgress)
+    Snapshot(TxId xmin, TxId xmax, Set<TxId> inProgress) {
+        for (TxId active : inProgress)
             assert active.between(xmin, xmax);
         this.xmax = xmax;
         this.xmin = xmin;
@@ -30,8 +30,8 @@ class Snapshot {
      * is in progress), didn't get why:
      * https://github.com/postgres/postgres/blob/def5b065ff22a16a80084587613599fe15627213/src/backend/utils/time/snapmgr.c#L2242
      */
-    public boolean isInSnapshot(TransactionId xid) {
-        TransactionId.assertNotNull(xid);
+    public boolean isInSnapshot(TxId xid) {
+        TxId.assertNotNull(xid);
         if(xid.precedes(xmin))
             return true;
         if(xid.followsOrEqual(xmax))

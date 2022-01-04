@@ -1,14 +1,14 @@
 package io.qala.db;
 
 public class SnapshotIsolationWriter implements TxWriter {
-    final TransactionId id;
+    final TxId id;
     private final Snapshot snapshot;
-    private final Transactions transactions;
+    private final TxsStatus txsStatus;
 
-    public SnapshotIsolationWriter(TransactionId id, Snapshot snapshot, Transactions transactions) {
+    public SnapshotIsolationWriter(TxId id, Snapshot snapshot, TxsStatus txsStatus) {
         this.id = id;
         this.snapshot = snapshot;
-        this.transactions = transactions;
+        this.txsStatus = txsStatus;
     }
 
     public Tuple write(Tuple oldVersion, Object[] data) {

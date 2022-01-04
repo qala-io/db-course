@@ -6,8 +6,8 @@ import java.util.Set;
 
 import static io.qala.datagen.RandomShortApi.integer;
 import static io.qala.datagen.RandomShortApi.nullOr;
-import static io.qala.db.TransactionId.NULL;
-import static io.qala.db.TransactionId.xid;
+import static io.qala.db.TxId.NULL;
+import static io.qala.db.TxId.xid;
 import static org.junit.Assert.*;
 
 public class SnapshotTest {
@@ -35,7 +35,7 @@ public class SnapshotTest {
         int xmin = integer();
         int xmax = integer(xmin, xmax(xmin+1));
 
-        TransactionId xid = xid(xmin+1);//lower boundary
+        TxId xid = xid(xmin + 1);//lower boundary
         assertFalse(snapshot(xmin, xmax, xid).isInSnapshot(xid));
 
         xid = xid(xmax - 1);//upper boundary
@@ -54,10 +54,10 @@ public class SnapshotTest {
         int xmin = integer();
         return snapshot(xmin, xmax(xmin));
     }
-    public static Snapshot snapshot(int xmin, int xmax, TransactionId ... active) {
+    public static Snapshot snapshot(int xmin, int xmax, TxId... active) {
         return new Snapshot(xid(xmin), xid(xmax), Set.of(active));
     }
-    public static Snapshot snapshot(TransactionId xmin, TransactionId xmax, TransactionId ... active) {
+    public static Snapshot snapshot(TxId xmin, TxId xmax, TxId... active) {
         return new Snapshot(xmin, xmax, Set.of(active));
     }
 

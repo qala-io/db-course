@@ -4,10 +4,10 @@ import java.util.*;
 
 public class Db {
     private final Map<String, Relation> relations = new HashMap<>();
-    private final Set<TransactionId> activeTxs = new HashSet<>();
-    private volatile TransactionId lastCommittedTx, lastStartedTx;
+    private final Set<TxId> activeTxs = new HashSet<>();
+    private volatile TxId lastCommittedTx, lastStartedTx;
     // todo: fill it
-    private final Transactions transactionHistory = new Transactions();
+    private final TxsStatus transactionHistory = new TxsStatus();
 
     public Db(String relName, Relation rel) {
         this.relations.put(relName, rel);
@@ -19,11 +19,11 @@ public class Db {
     public List<Tuple> select(String rel) {
         return relations.get(rel).select();
     }
-    public void addActiveTx(Transaction tx) {
+    public void addActiveTx(Tx tx) {
         lastStartedTx = tx.id;
         activeTxs.add(lastStartedTx);
     }
-    public void commit(Transaction tx) {
+    public void commit(Tx tx) {
         lastCommittedTx = tx.id;
         activeTxs.remove(lastCommittedTx);
     }
@@ -33,7 +33,7 @@ public class Db {
     public Snapshot createSnapshot() {
         return new Snapshot(lastCommittedTx, lastStartedTx, activeTxs);
     }
-    public Transactions getTransactionsStatus() {
+    public TxsStatus getTransactionsStatus() {
         return transactionHistory;
     }
 }

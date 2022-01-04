@@ -3,17 +3,17 @@ package io.qala.db;
 import java.util.HashSet;
 import java.util.Set;
 
-public class Transaction {
-    final TransactionId id;
+public class Tx {
+    final TxId id;
     private final Set<Tuple> readTuples = new HashSet<>();
     private final Set<Tuple> writeTuples = new HashSet<>();
-    private final SnapshotIsolationReader reader;
+    private final TxReader reader;
     private final TxWriter writer;
 
-    public Transaction(TransactionId id, Snapshot snapshot, Transactions transactions) {
+    public Tx(TxId id, Snapshot snapshot, TxsStatus txsStatus) {
         this.id = id;
-        this.reader = new SnapshotIsolationReader(id, snapshot, transactions);
-        this.writer = new SnapshotIsolationWriter(id, snapshot, transactions);
+        this.reader = new SnapshotIsolationReader(id, snapshot, txsStatus);
+        this.writer = new SnapshotIsolationWriter(id, snapshot, txsStatus);
     }
 
     public boolean canRead(Tuple t) {

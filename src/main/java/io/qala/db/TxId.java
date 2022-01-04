@@ -2,43 +2,43 @@ package io.qala.db;
 
 import java.util.Objects;
 
-class TransactionId {
+class TxId {
     private final Integer id;
-    public static final TransactionId NULL = new TransactionId();
+    public static final TxId NULL = new TxId();
 
-    private TransactionId() {
+    private TxId() {
         this.id = null;
     }
-    public TransactionId(int id) {
+    public TxId(int id) {
         this.id = id;
     }
-    public static TransactionId xid(int transactionId) {
-        return new TransactionId(transactionId);
+    public static TxId xid(int transactionId) {
+        return new TxId(transactionId);
     }
-    public static TransactionId assertNotNull(TransactionId xid) {
+    public static TxId assertNotNull(TxId xid) {
         if(xid == null || xid.equals(NULL))
             throw new IllegalArgumentException(
                     "Check Transaction ID for null value explicitly before checking if it's in snapshot");
         return xid;
     }
 
-    public boolean between(TransactionId beginTx, TransactionId endTx) {
+    public boolean between(TxId beginTx, TxId endTx) {
         return beginTx.id < id && (endTx == NULL || id < endTx.id);
     }
-    public boolean precedes(TransactionId that) {
+    public boolean precedes(TxId that) {
         return this.id < that.id;
     }
-    public boolean followsOrEqual(TransactionId that) {
+    public boolean followsOrEqual(TxId that) {
         return this.id >= that.id;
     }
-    public TransactionId add(int offset) {
+    public TxId add(int offset) {
         //noinspection ConstantConditions
-        return new TransactionId(id + offset);
+        return new TxId(id + offset);
     }
     @Override public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        TransactionId that = (TransactionId) o;
+        TxId that = (TxId) o;
         return Objects.equals(id, that.id);
     }
     @Override public int hashCode() {

@@ -1,7 +1,7 @@
 package io.qala.db;
 
-import static io.qala.db.TransactionStatus.ABORTED;
-import static io.qala.db.TransactionStatus.INVALID;
+import static io.qala.db.TxStatus.ABORTED;
+import static io.qala.db.TxStatus.INVALID;
 
 /**
  * aka Table Record, Row
@@ -10,20 +10,20 @@ import static io.qala.db.TransactionStatus.INVALID;
  */
 public class Tuple {
     final Object[] data;
-    TransactionId xmin, xmax = TransactionId.NULL;
-    TransactionStatus xminStatus = INVALID, xmaxStatus = ABORTED;
-    volatile TransactionId currentWriter;
+    TxId xmin, xmax = TxId.NULL;
+    TxStatus xminStatus = INVALID, xmaxStatus = ABORTED;
+    volatile TxId currentWriter;
     Tuple nextVersion;
 
-    public Tuple(TransactionId creator, Object[] data) {
+    public Tuple(TxId creator, Object[] data) {
         this.data = data;
         this.xmin = creator;
     }
 
-    public void lock(TransactionId tx) {
+    public void lock(TxId tx) {
         this.currentWriter = tx;
     }
-    public boolean isWriteLockIsHeldByAnother(TransactionId currentTx) {
+    public boolean isWriteLockIsHeldByAnother(TxId currentTx) {
         return this.currentWriter != null && this.currentWriter.equals(currentTx);
     }
     public void unlock() {

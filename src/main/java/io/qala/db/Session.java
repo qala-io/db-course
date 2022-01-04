@@ -5,15 +5,15 @@ import java.util.List;
 
 public class Session {
     private final Db db;
-    private Transaction tx;
+    private Tx tx;
 
     public Session(Db db) {
         this.db = db;
     }
 
     public void beginTx() {
-        TransactionId txId = new TransactionId((int) System.nanoTime());
-        tx = new Transaction(txId, db.createSnapshot(), db.getTransactionsStatus());
+        TxId txId = new TxId((int) System.nanoTime());
+        tx = new Tx(txId, db.createSnapshot(), db.getTransactionsStatus());
         db.addActiveTx(tx);
     }
     public void commit() {
