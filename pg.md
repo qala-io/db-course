@@ -13,9 +13,15 @@ Otherwise there'll be a lot of information (variable values) unavailable during 
 ```
 ./configure --enable-cassert --enable-debug CFLAGS="-ggdb -O0 -g3 -fno-omit-frame-pointer"
 ```
-3. To start Postgre, select built binary in Clion: `/usr/local/pgsql/bin/postgres`
-4. Usually Postgre starts with in multi-user mode which means that the process that you start isn't the process that
-will handle actual code execution. Need to run in a single-user mode:
+
+3. Before running PG initialize database (you can choose a different folder to):
 ```
---single -D /usr/local/pgsql/data postgres
+/usr/local/pgsql/bin/initdb -D /usr/local/pgsql/data
 ```
+
+4. To start Postgre run:
+```
+/usr/local/pgsql/bin/postgres -D /usr/local/pgsql/data
+```
+
+5. Connect to the database, find the backend process which will actually handle queries using `select pg_backend_pid();`. Use it in CLion to attach: _Run -> Attach to Process_.
