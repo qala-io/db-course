@@ -9,6 +9,7 @@ import static org.junit.Assert.*;
 public class DbTest {
     @Test public void creatingTx_updatesLastStarted() {
         Db db = new Db();
+        callNoneOrMore(db::beginTx);
         Tx tx = db.beginTx();
         assertEquals(tx.id, db.getLastStarted());
     }
@@ -26,5 +27,21 @@ public class DbTest {
         Tx tx2 = db.beginTx();
         db.commit(tx2.id);
         assertEquals(new TxId(0), db.getSmallestFinished());
+    }
+    @Test public void startingTx_addsItToListOfActive(){
+        Db db = new Db();
+        assertTrue(db.activeTxs.isEmpty());
+
+        Tx tx1 = db.beginTx();
+        assertTrue(db.activeTxs.contains(tx1.id));
+        Tx tx2 = db.beginTx();
+        assertTrue(db.activeTxs.contains(tx2.id));
+        assertEquals(2, db.activeTxs.size());
+    }
+    @Test public void committingTx_removesItFromListOfActive() {
+        Db db = new Db();
+        Tx tx = db.beginTx();
+        db.commit(tx.id);
+        assertEquals(0, db.activeTxs.size());
     }
 }

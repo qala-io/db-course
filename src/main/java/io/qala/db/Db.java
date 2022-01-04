@@ -6,12 +6,12 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class Db {
     private final AtomicInteger nextXid = new AtomicInteger(1);
-    private final Set<TxId> activeTxs = new HashSet<>();
+    final Set<TxId> activeTxs = new HashSet<>();
     private volatile TxId smallestFinished = new TxId(0), lastStarted = new TxId(0);
     private final TxsStatus txsStatus = new TxsStatus();
 
     public void commit(TxId xid) {
-        activeTxs.remove(smallestFinished);
+        activeTxs.remove(xid);
         boolean isSmallestCommitted = true;
         for (TxId active : activeTxs)
             if(active.precedes(xid)) {
