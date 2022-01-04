@@ -21,8 +21,7 @@ public class TupleTest {
     }
     public static Tuple tuple(TransactionId xmin, TransactionId xmax,
                               TransactionStatus xminStatus, TransactionStatus xmaxStatus) {
-        Tuple t = new Tuple(null);
-        t.xmin = xmin;
+        Tuple t = new Tuple(xmin, null);
         t.xmax = xmax;
         t.xminStatus = xminStatus;
         t.xmaxStatus = xmaxStatus;

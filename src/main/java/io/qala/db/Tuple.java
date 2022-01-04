@@ -15,8 +15,9 @@ public class Tuple {
     volatile TransactionId currentWriter;
     Tuple nextVersion;
 
-    public Tuple(Object[] data) {
+    public Tuple(TransactionId creator, Object[] data) {
         this.data = data;
+        this.xmin = creator;
     }
 
     public void lock(TransactionId tx) {

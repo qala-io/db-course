@@ -12,17 +12,20 @@ public class SnapshotIsolationWriter implements TxWriter {
     }
 
     public Tuple write(Tuple oldVersion, Object[] data) {
+        Tuple prev = oldVersion == null// when it's INSERT, not UPDATE
+                ? new Tuple(id, null)//just to eliminate all the null checks, it will be GCed quickly
+                : oldVersion;
 //        Tuple latest = oldVersion.getLatestVersion(oldVersion);
-        waitIfLocked(oldVersion);
+        waitIfLocked(prev);
         // If another tx updated the tuple concurrently:
         // - Read Committed would simply re-evaluate where condition and continue updating
         //   the tuple if still satisfied
         // - Snapshot isolation on the other hand will err
-        oldVersion.lock(id);
-        Tuple newVersion = new Tuple(data);
-        newVersion.xmin = newVersion.currentWriter = id;
-        oldVersion.nextVersion = newVersion;
-        oldVersion.xmax = id;
+        prev.lock(id);
+        Tuple newVersion = new Tuple(id, data);
+        newVersion.currentWriter = id;
+        prev.nextVersion = newVersion;
+        prev.xmax = id;
         return newVersion;
     }
     private void waitIfLocked(Tuple latest) {
