@@ -1,7 +1,6 @@
 package io.qala.db;
 
 import static io.qala.db.TxStatus.*;
-import static io.qala.db.TxStatus.INVALID;
 
 public class SnapshotIsolationReader implements TxReader {
     final TxId id;
@@ -15,7 +14,7 @@ public class SnapshotIsolationReader implements TxReader {
     }
 
     public boolean canRead(Tuple t) {
-        if(t.xmax.equals(id))
+        if(id.equals(t.xmax))
             return false;// we deleted this tuple
         if(t.xmin.equals(id))
             return true;// we created this tuple
@@ -23,11 +22,9 @@ public class SnapshotIsolationReader implements TxReader {
         if(t.xminStatus != COMMITTED || !snapshot.isInSnapshot(t.xmin))
             return false;// inserting transaction hasn't been committed
         t.xmaxStatus = getEndTxStatus(t);
-        TxId endTx = t.xmaxStatus == COMMITTED ? t.xmax : TxId.NULL;
+        TxId endTx = t.xmaxStatus == COMMITTED ? t.xmax : null;
         // the record has been deleted, but maybe it happened in parallel and our snapshot doesn't now yet
-        if(t.xmaxStatus == COMMITTED && snapshot.isInSnapshot(endTx))
-            return false;
-        return true;
+        return t.xmaxStatus != COMMITTED || !snapshot.isInSnapshot(endTx);
     }
 
     private TxStatus getBeginTxStatus(Tuple t) {
@@ -36,7 +33,7 @@ public class SnapshotIsolationReader implements TxReader {
         return txsStatus.getStatus(t.xmin);
     }
     private TxStatus getEndTxStatus(Tuple t) {
-        if(t.xmax == TxId.NULL)
+        if(t.xmax == null)
             return ABORTED;
         if(t.xmaxStatus != INVALID)
             return t.xmaxStatus;

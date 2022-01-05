@@ -1,7 +1,6 @@
 package io.qala.db;
 
 import static io.qala.datagen.RandomShortApi.integer;
-import static io.qala.db.TxId.NULL;
 import static io.qala.db.TxId.xid;
 import static io.qala.db.TxStatus.COMMITTED;
 import static io.qala.db.TxStatus.INVALID;
@@ -11,7 +10,7 @@ public class TupleTest {
         return inserted(xid(integer()));
     }
     public static Tuple inserted(TxId xmin) {
-        return tuple(xmin, NULL, COMMITTED, INVALID);
+        return tuple(xmin, null, COMMITTED, INVALID);
     }
     public static Tuple deleted() {
         return deleted(integer());

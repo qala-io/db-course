@@ -1,12 +1,7 @@
 package io.qala.db;
 
-import java.util.HashSet;
-import java.util.Set;
-
 public class Tx {
     final TxId id;
-    private final Set<Tuple> readTuples = new HashSet<>();
-    private final Set<Tuple> writeTuples = new HashSet<>();
     private final TxReader reader;
     private final TxWriter writer;
 
@@ -22,18 +17,5 @@ public class Tx {
 
     public Tuple update(Tuple oldVersion, Object[] data) {
         return writer.write(oldVersion, data);
-    }
-
-    public void commit() {
-        releaseLocks();
-    }
-    public void rollback() {
-        releaseLocks();
-    }
-    private void releaseLocks() {
-        for (Tuple t : writeTuples)
-            t.unlock();
-        writeTuples.clear();
-        readTuples.clear();
     }
 }

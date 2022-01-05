@@ -10,29 +10,13 @@ import static io.qala.db.TxStatus.INVALID;
  */
 public class Tuple {
     final Object[] data;
-    TxId xmin, xmax = TxId.NULL;
-    TxStatus xminStatus = INVALID, xmaxStatus = ABORTED;
-    volatile TxId currentWriter;
-    Tuple nextVersion;
+    final TxId xmin;
+    volatile TxId xmax, currentWriter;
+    volatile TxStatus xminStatus = INVALID, xmaxStatus = ABORTED;
+    volatile Tuple nextVersion;
 
     public Tuple(TxId creator, Object[] data) {
         this.data = data;
         this.xmin = creator;
-    }
-
-    public void lock(TxId tx) {
-        this.currentWriter = tx;
-    }
-    public boolean isWriteLockIsHeldByAnother(TxId currentTx) {
-        return this.currentWriter != null && this.currentWriter.equals(currentTx);
-    }
-    public void unlock() {
-        this.currentWriter = null;
-    }
-    public Tuple getLatestVersion(Tuple oldVersion) {
-        Tuple nextVersion = oldVersion;
-        while(nextVersion.nextVersion != null)
-            nextVersion = nextVersion.nextVersion;
-        return nextVersion;
     }
 }

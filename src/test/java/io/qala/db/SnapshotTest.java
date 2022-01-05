@@ -5,8 +5,6 @@ import org.junit.Test;
 import java.util.Set;
 
 import static io.qala.datagen.RandomShortApi.integer;
-import static io.qala.datagen.RandomShortApi.nullOr;
-import static io.qala.db.TxId.NULL;
 import static io.qala.db.TxId.xid;
 import static org.junit.Assert.*;
 
@@ -47,7 +45,7 @@ public class SnapshotTest {
     @Test public void cannotCheckNullXidInSnapshot_itErrs() {
         int xmin = integer();
         int xmax = integer(xmin, xmax(xmin+1));
-        assertThrows(IllegalArgumentException.class, () -> snapshot(xmin, xmax).isInSnapshot(nullOr(NULL)));
+        assertThrows(IllegalArgumentException.class, () -> snapshot(xmin, xmax).isInSnapshot(null));
     }
 
     public static Snapshot snapshot() {

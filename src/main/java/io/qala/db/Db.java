@@ -1,24 +1,18 @@
 package io.qala.db;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.NavigableSet;
+import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class Db {
     private final AtomicInteger nextXid = new AtomicInteger(1);
-    final Set<TxId> activeTxs = new HashSet<>();
     private volatile TxId smallestFinished = new TxId(0), lastStarted = new TxId(0);
+    final NavigableSet<TxId> activeTxs = new ConcurrentSkipListSet<>();
     private final TxsStatus txsStatus = new TxsStatus();
 
     public void commit(TxId xid) {
         activeTxs.remove(xid);
-        boolean isSmallestCommitted = true;
-        for (TxId active : activeTxs)
-            if(active.precedes(xid)) {
-                isSmallestCommitted = false;
-                break;
-            }
-        if(isSmallestCommitted)
+        if(activeTxs.floor(xid) == null)
             smallestFinished = xid;
     }
     /**
@@ -26,9 +20,6 @@ public class Db {
      */
     public Snapshot createSnapshot() {
         return new Snapshot(smallestFinished, lastStarted, activeTxs);
-    }
-    public TxsStatus getTransactionsStatus() {
-        return txsStatus;
     }
 
     public Tx beginTx() {
@@ -39,10 +30,10 @@ public class Db {
         return new Tx(xid, snapshot, txsStatus);
     }
 
-    public TxId getLastStarted() {
+    TxId getLastStarted() {
         return lastStarted;
     }
-    public TxId getSmallestFinished() {
+    TxId getSmallestFinished() {
         return smallestFinished;
     }
 }

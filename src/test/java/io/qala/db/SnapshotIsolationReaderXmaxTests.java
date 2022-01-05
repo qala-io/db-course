@@ -4,7 +4,6 @@ import org.junit.Test;
 
 import static io.qala.datagen.RandomShortApi.integer;
 import static io.qala.db.SnapshotTest.snapshot;
-import static io.qala.db.TxId.NULL;
 import static io.qala.db.TxId.xid;
 import static io.qala.db.TxStatus.*;
 import static io.qala.db.TxsStatusTest.*;
@@ -61,7 +60,6 @@ public class SnapshotIsolationReaderXmaxTests {
     }
     @Test public void ifXmaxIsNull_XmaxStatusChangesToAborted() {
         Tuple t = inserted();
-        t.xmax = NULL;
         t.xmaxStatus = TxStatus.random();
         TxReader x = sut(t.xmin.add(1), snapshot(t.xmin, t.xmin.add(1)), new TxsStatus());
         assertTrue(x.canRead(t));

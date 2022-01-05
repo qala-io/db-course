@@ -3,7 +3,6 @@ package io.qala.db;
 import org.junit.Test;
 
 import static io.qala.datagen.RandomShortApi.integer;
-import static io.qala.datagen.RandomShortApi.nullOr;
 import static io.qala.db.TxId.xid;
 import static io.qala.db.TxStatus.*;
 import static org.junit.Assert.assertEquals;
@@ -21,8 +20,8 @@ public class TxsStatusTest {
         assertEquals(INVALID, new TxsStatus().getStatus(xid(integer())));
     }
     @Test public void throws_IfTxIsNull() {
-        assertThrows(IllegalArgumentException.class, ()-> committed(nullOr(TxId.NULL)));
-        assertThrows(IllegalArgumentException.class, ()-> aborted(nullOr(TxId.NULL)));
+        assertThrows(IllegalArgumentException.class, ()-> committed((TxId) null));
+        assertThrows(IllegalArgumentException.class, ()-> aborted((TxId) null));
     }
 
     public static TxsStatus aborted(TxId... xids) {

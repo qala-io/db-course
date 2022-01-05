@@ -1,10 +1,12 @@
 package io.qala.db;
 
-import io.qala.datagen.RandomShortApi;
 import org.junit.Test;
 
+import java.io.File;
+
 import static io.qala.datagen.RandomShortApi.callNoneOrMore;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class DbTest {
     @Test public void creatingTx_updatesLastStarted() {

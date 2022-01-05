@@ -2,16 +2,9 @@ package io.qala.db;
 
 import java.util.Objects;
 
-class TxId {
+class TxId implements Comparable<TxId> {
     private final Integer id;
-    public static final TxId
-            NULL = new TxId(),
-            MIN = new TxId(Integer.MIN_VALUE),
-            MAX = new TxId(Integer.MAX_VALUE);
 
-    private TxId() {
-        this.id = null;
-    }
     public TxId(int id) {
         this.id = id;
     }
@@ -19,25 +12,19 @@ class TxId {
         return new TxId(transactionId);
     }
     public static TxId assertNotNull(TxId xid) {
-        if(xid == null || xid.equals(NULL))
+        if(xid == null)
             throw new IllegalArgumentException(
                     "Check Transaction ID for null value explicitly before checking if it's in snapshot");
         return xid;
     }
 
-    public boolean between(TxId beginTx, TxId endTx) {
-        assertNotNull(beginTx);
-        assertNotNull(endTx);
-        return beginTx.id < id && (endTx == NULL || id < endTx.id);
-    }
     public boolean precedes(TxId that) {
-        return this.id < that.id;
+        return compareTo(that) < 0;
     }
     public boolean followsOrEqual(TxId that) {
-        return this.id >= that.id;
+        return compareTo(that) >= 0;
     }
     public TxId add(int offset) {
-        //noinspection ConstantConditions
         return new TxId(id + offset);
     }
     @Override public boolean equals(Object o) {
@@ -48,6 +35,9 @@ class TxId {
     }
     @Override public int hashCode() {
         return Objects.hash(id);
+    }
+    @Override public int compareTo(TxId o) {
+        return Integer.compare(id, o.id);
     }
     @Override public String toString() {
         return "xid#" + id;
