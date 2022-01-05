@@ -44,4 +44,12 @@ public class DbTest {
         db.commit(tx.id);
         assertEquals(0, db.createSnapshot().activeTxs.size());
     }
+    @Test public void committingTx_changesItsStatus() {
+        Db db = new Db();
+        Tx tx = db.beginTx();
+        assertEquals(TxStatus.INVALID, db.txsStatus.getStatus(tx.id));
+
+        db.commit(tx.id);
+        assertEquals(TxStatus.COMMITTED, db.txsStatus.getStatus(tx.id));
+    }
 }

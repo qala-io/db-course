@@ -25,9 +25,9 @@ public class SnapshotTest {
     @Test public void inSnapshot_ifXidBetweenXminAndXmax_andIsNotPresentInActiveTransactions() {
         int xmin = integer();
         int xmax = integer(xmin, xmax(xmin+1));
-        assertTrue(snapshot(xmin, xmax).isInSnapshot(xid(xmin)));//lower boundary
-        assertTrue(snapshot(xmin, xmax).isInSnapshot(xid(xmax-1)));//upper boundary
-        assertTrue(snapshot(xmin, xmax).isInSnapshot(xid(integer(xmin, xmax-1))));
+        assertTrue(snapshot(xmin, xmin).isInSnapshot(xid(xmin)));//lower boundary
+        assertTrue(snapshot(xmin, xmax).isInSnapshot(xid(xmax-1)));//upper boundary + activeTxs
+        assertTrue(snapshot(xmin, xmax).isInSnapshot(xid(integer(xmin+1, xmax-1))));
     }
     @Test public void notInSnapshot_ifXidBetweenXminAndXmax_andIsPresentInActiveTransactions() {
         int xmin = integer();

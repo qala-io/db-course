@@ -8,19 +8,7 @@ public class Db {
     private final AtomicInteger nextXid = new AtomicInteger(1);
     private volatile TxId smallestFinished = new TxId(0), lastStarted = new TxId(0);
     private final NavigableSet<TxId> activeTxs = new ConcurrentSkipListSet<>();
-    private final TxsStatus txsStatus = new TxsStatus();
-
-    public void commit(TxId xid) {
-        activeTxs.remove(xid);
-        if(activeTxs.floor(xid) == null)
-            smallestFinished = xid;
-    }
-    /**
-     * https://github.com/postgres/postgres/blob/def5b065ff22a16a80084587613599fe15627213/src/backend/replication/logical/snapbuild.c#L613
-     */
-    public Snapshot createSnapshot() {
-        return new Snapshot(smallestFinished, lastStarted, activeTxs);
-    }
+    final TxsStatus txsStatus = new TxsStatus();
 
     public Tx beginTx() {
         TxId xid = new TxId(nextXid.getAndIncrement());
@@ -29,6 +17,19 @@ public class Db {
         this.activeTxs.add(xid);
         return new Tx(xid, snapshot, txsStatus);
     }
+    public void commit(TxId xid) {
+        activeTxs.remove(xid);
+        txsStatus.commit(xid);
+        if(activeTxs.floor(xid) == null)
+            smallestFinished = xid;
+    }
+    /**
+     * https://github.com/postgres/postgres/blob/def5b065ff22a16a80084587613599fe15627213/src/backend/replication/logical/snapbuild.c#L613
+     */
+    Snapshot createSnapshot() {
+        return new Snapshot(smallestFinished, lastStarted, activeTxs);
+    }
+
 
     TxId getLastStarted() {
         return lastStarted;

@@ -11,7 +11,7 @@ class Snapshot {
 
     Snapshot(TxId xmin, TxId xmax, Set<TxId> activeTxs) {
         for (TxId active : activeTxs)
-            assert xmin.precedes(active) && xmax.followsOrEqual(active);
+            assert xmin.precedesOrEqual(active) && xmax.followsOrEqual(active);
         this.xmax = xmax;
         this.xmin = xmin;
         this.activeTxs = Set.copyOf(activeTxs);
@@ -31,7 +31,7 @@ class Snapshot {
      */
     public boolean isInSnapshot(TxId xid) {
         TxId.assertNotNull(xid);
-        if(xid.precedes(xmin))
+        if(xid.precedesOrEqual(xmin))
             return true;
         if(xid.followsOrEqual(xmax))
             return false;

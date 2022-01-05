@@ -18,8 +18,8 @@ class TxId implements Comparable<TxId> {
         return xid;
     }
 
-    public boolean precedes(TxId that) {
-        return compareTo(that) < 0;
+    public boolean precedesOrEqual(TxId that) {
+        return compareTo(that) <= 0;
     }
     public boolean followsOrEqual(TxId that) {
         return compareTo(that) >= 0;

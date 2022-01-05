@@ -15,7 +15,7 @@ public class Tx {
         return reader.canRead(t);
     }
 
-    public Tuple update(Tuple oldVersion, Object[] data) {
+    public Tuple write(Tuple oldVersion, Object[] data) {
         return writer.write(oldVersion, data);
     }
 }
