@@ -11,14 +11,18 @@ public class SnapshotIsolationWriter implements TxWriter {
         this.txsStatus = txsStatus;
     }
 
-    public Tuple write(Tuple oldVersion, Object[] data) {
+    public Tuple write(Tuple oldVersion, Object[] data) throws ConcurrentUpdateException {
         Tuple prev = oldVersion == null// when it's INSERT, not UPDATE
                 ? new Tuple(id, null)//just to eliminate all the null checks, it will be GCed quickly
                 : oldVersion;
+        txsStatus.updateXmaxStatus(prev);
+        if(prev.xmaxStatus == TxStatus.COMMITTED && !snapshot.isInSnapshot(prev.xmax))
+            throw new ConcurrentUpdateException();
         Tuple newVersion = new Tuple(id, data);
         newVersion.currentWriter = id;
         prev.nextVersion = newVersion;
         prev.xmax = id;
+        prev.xmaxStatus = TxStatus.INVALID;
         return newVersion;
     }
 }

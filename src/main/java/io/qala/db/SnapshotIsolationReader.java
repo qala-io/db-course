@@ -1,6 +1,6 @@
 package io.qala.db;
 
-import static io.qala.db.TxStatus.*;
+import static io.qala.db.TxStatus.COMMITTED;
 
 public class SnapshotIsolationReader implements TxReader {
     final TxId id;
@@ -18,25 +18,13 @@ public class SnapshotIsolationReader implements TxReader {
             return false;// we deleted this tuple
         if(t.xmin.equals(id))
             return true;// we created this tuple
-        t.xminStatus = getBeginTxStatus(t);
+        txsStatus.updateXminStatus(t);
         if(t.xminStatus != COMMITTED || !snapshot.isInSnapshot(t.xmin))
             return false;// inserting transaction hasn't been committed
-        t.xmaxStatus = getEndTxStatus(t);
+        txsStatus.updateXmaxStatus(t);
         TxId endTx = t.xmaxStatus == COMMITTED ? t.xmax : null;
         // the record has been deleted, but maybe it happened in parallel and our snapshot doesn't now yet
         return t.xmaxStatus != COMMITTED || !snapshot.isInSnapshot(endTx);
     }
 
-    private TxStatus getBeginTxStatus(Tuple t) {
-        if(t.xminStatus != INVALID)
-            return t.xminStatus;
-        return txsStatus.getStatus(t.xmin);
-    }
-    private TxStatus getEndTxStatus(Tuple t) {
-        if(t.xmax == null)
-            return ABORTED;
-        if(t.xmaxStatus != INVALID)
-            return t.xmaxStatus;
-        return txsStatus.getStatus(t.xmax);
-    }
 }

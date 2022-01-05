@@ -18,6 +18,9 @@ public class TupleTest {
     public static Tuple deleted(int xmax) {
         return tuple(xid(integer(Integer.MIN_VALUE, xmax)), xid(xmax), COMMITTED, COMMITTED);
     }
+    public static Tuple deleted(TxId xmax) {
+        return tuple(xmax.add(integer(Integer.MIN_VALUE, 0)), xmax, COMMITTED, COMMITTED);
+    }
     public static Tuple tuple(TxId xmin, TxId xmax,
                               TxStatus xminStatus, TxStatus xmaxStatus) {
         Tuple t = new Tuple(xmin, null);

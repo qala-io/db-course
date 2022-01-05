@@ -5,10 +5,13 @@ import org.junit.Test;
 import static io.qala.datagen.RandomShortApi.integer;
 import static io.qala.datagen.RandomShortApi.nullOr;
 import static io.qala.db.SnapshotTest.snapshot;
+import static io.qala.db.TupleTest.deleted;
 import static io.qala.db.TxId.xid;
 import static io.qala.db.TxStatus.INVALID;
 import static io.qala.db.TupleTest.inserted;
+import static io.qala.db.TxsStatusTest.committed;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThrows;
 
 public class SnapshotIsolationWriterTest {
     @Test public void setsXmaxForUpdatedTuple() {
@@ -27,6 +30,11 @@ public class SnapshotIsolationWriterTest {
         Tuple newT = writer.write(nullOr(inserted()), tdata());
         assertEquals(xid, newT.xmin);
         assertEquals(INVALID, newT.xminStatus);
+    }
+    @Test public void errsIfSomeoneCommittedNewVersion_sinceTxStarted() {
+        TxId xid = xid(integer());
+        TxWriter sut = sut(xid, snapshot(xid, xid), committed(xid.add(1)));
+        assertThrows(ConcurrentUpdateException.class, () -> sut.write(deleted(xid.add(1)), null));
     }
 
     private static TxWriter sut(TxId xid, Snapshot snapshot, TxsStatus txsStatus) {

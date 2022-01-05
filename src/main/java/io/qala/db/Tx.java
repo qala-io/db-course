@@ -15,7 +15,7 @@ public class Tx {
         return reader.canRead(t);
     }
 
-    public Tuple write(Tuple oldVersion, Object[] data) {
+    public Tuple write(Tuple oldVersion, Object[] data) throws ConcurrentUpdateException {
         return writer.write(oldVersion, data);
     }
 }
