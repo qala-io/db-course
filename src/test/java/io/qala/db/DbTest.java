@@ -2,8 +2,6 @@ package io.qala.db;
 
 import org.junit.Test;
 
-import java.io.File;
-
 import static io.qala.datagen.RandomShortApi.callNoneOrMore;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -32,18 +30,18 @@ public class DbTest {
     }
     @Test public void startingTx_addsItToListOfActive(){
         Db db = new Db();
-        assertTrue(db.activeTxs.isEmpty());
+        assertTrue(db.createSnapshot().activeTxs.isEmpty());
 
         Tx tx1 = db.beginTx();
-        assertTrue(db.activeTxs.contains(tx1.id));
+        assertTrue(db.createSnapshot().activeTxs.contains(tx1.id));
         Tx tx2 = db.beginTx();
-        assertTrue(db.activeTxs.contains(tx2.id));
-        assertEquals(2, db.activeTxs.size());
+        assertTrue(db.createSnapshot().activeTxs.contains(tx2.id));
+        assertEquals(2, db.createSnapshot().activeTxs.size());
     }
     @Test public void committingTx_removesItFromListOfActive() {
         Db db = new Db();
         Tx tx = db.beginTx();
         db.commit(tx.id);
-        assertEquals(0, db.activeTxs.size());
+        assertEquals(0, db.createSnapshot().activeTxs.size());
     }
 }

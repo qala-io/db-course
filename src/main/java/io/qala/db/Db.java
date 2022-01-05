@@ -7,7 +7,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class Db {
     private final AtomicInteger nextXid = new AtomicInteger(1);
     private volatile TxId smallestFinished = new TxId(0), lastStarted = new TxId(0);
-    final NavigableSet<TxId> activeTxs = new ConcurrentSkipListSet<>();
+    private final NavigableSet<TxId> activeTxs = new ConcurrentSkipListSet<>();
     private final TxsStatus txsStatus = new TxsStatus();
 
     public void commit(TxId xid) {

@@ -1,6 +1,5 @@
 package io.qala.db;
 
-import java.util.HashSet;
 import java.util.Set;
 
 /**
@@ -8,14 +7,14 @@ import java.util.Set;
  */
 class Snapshot {
     final TxId xmax, xmin;
-    final Set<TxId> inProgress;
+    final Set<TxId> activeTxs;
 
-    Snapshot(TxId xmin, TxId xmax, Set<TxId> inProgress) {
-        for (TxId active : inProgress)
+    Snapshot(TxId xmin, TxId xmax, Set<TxId> activeTxs) {
+        for (TxId active : activeTxs)
             assert xmin.precedes(active) && xmax.followsOrEqual(active);
         this.xmax = xmax;
         this.xmin = xmin;
-        this.inProgress = new HashSet<>(inProgress);
+        this.activeTxs = Set.copyOf(activeTxs);
     }
 
     /**
@@ -37,6 +36,6 @@ class Snapshot {
         if(xid.followsOrEqual(xmax))
             return false;
         // if it's xmin < xid < xmax, then check if it was running at the time of creating snapshot:
-        return !inProgress.contains(xid);
+        return !activeTxs.contains(xid);
     }
 }
