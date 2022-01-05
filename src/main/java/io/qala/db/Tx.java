@@ -5,10 +5,10 @@ public class Tx {
     private final TxReader reader;
     private final TxWriter writer;
 
-    public Tx(TxId id, Snapshot snapshot, TxsStatus txsStatus) {
+    public Tx(TxId id, TxReader txReader, TxWriter txWriter) {
         this.id = id;
-        this.reader = new SnapshotIsolationReader(id, snapshot, txsStatus);
-        this.writer = new SnapshotIsolationWriter(id, snapshot, txsStatus);
+        this.reader = txReader;
+        this.writer = txWriter;
     }
 
     public boolean canRead(Tuple t) {

@@ -10,13 +10,14 @@ public class Db {
     private final NavigableSet<TxId> activeTxs = new ConcurrentSkipListSet<>();
     final TxsStatus txsStatus = new TxsStatus();
 
-    public Tx beginTx() {
+    public Tx beginTx(TxIsolationLevel isolation) {
         TxId xid = new TxId(nextXid.getAndIncrement());
         Snapshot snapshot = createSnapshot();
         this.lastStarted = xid;
         this.activeTxs.add(xid);
-        return new Tx(xid, snapshot, txsStatus);
+        return createTx(xid, isolation, snapshot);
     }
+
     public void commit(TxId xid) {
         activeTxs.remove(xid);
         txsStatus.commit(xid);
@@ -36,5 +37,16 @@ public class Db {
     }
     TxId getSmallestFinished() {
         return smallestFinished;
+    }
+
+    private Tx createTx(TxId xid, TxIsolationLevel isolation, Snapshot snapshot) {
+        TxReader txReader;
+        TxWriter txWriter;
+        if(isolation == TxIsolationLevel.SNAPSHOT) {
+            txReader = new SnapshotIsolationReader(xid, snapshot, txsStatus);
+            txWriter = new SnapshotIsolationWriter(xid, snapshot, txsStatus);
+        } else
+            throw new IllegalArgumentException("TX Isolation level isn't supported: " + isolation);
+        return new Tx(xid, txReader, txWriter);
     }
 }
