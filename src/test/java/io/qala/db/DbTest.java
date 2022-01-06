@@ -47,9 +47,9 @@ public class DbTest {
     @Test public void committingTx_changesItsStatus() {
         Db db = new Db();
         Tx tx = db.beginTx(TxIsolationLevel.SNAPSHOT);
-        assertEquals(TxStatus.INVALID, db.txsStatus.getStatus(tx.id));
+        assertEquals(TxOutcome.UNKNOWN, db.txsOutcomes.getStatus(tx.id));
 
         db.commit(tx.id);
-        assertEquals(TxStatus.COMMITTED, db.txsStatus.getStatus(tx.id));
+        assertEquals(TxOutcome.COMMITTED, db.txsOutcomes.getStatus(tx.id));
     }
 }

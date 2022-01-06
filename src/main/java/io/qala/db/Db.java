@@ -8,7 +8,7 @@ public class Db {
     private final AtomicInteger nextXid = new AtomicInteger(1);
     private volatile TxId smallestFinished = new TxId(0), lastStarted = new TxId(0);
     private final NavigableSet<TxId> activeTxs = new ConcurrentSkipListSet<>();
-    final TxsStatus txsStatus = new TxsStatus();
+    final TxsOutcomes txsOutcomes = new TxsOutcomes();
 
     public Tx beginTx(TxIsolationLevel isolation) {
         TxId xid = new TxId(nextXid.getAndIncrement());
@@ -20,7 +20,7 @@ public class Db {
 
     public void commit(TxId xid) {
         activeTxs.remove(xid);
-        txsStatus.commit(xid);
+        txsOutcomes.commit(xid);
         if(activeTxs.floor(xid) == null)
             smallestFinished = xid;
     }
@@ -43,8 +43,8 @@ public class Db {
         TxReader txReader;
         TxWriter txWriter;
         if(isolation == TxIsolationLevel.SNAPSHOT) {
-            txReader = new SnapshotIsolationReader(xid, snapshot, txsStatus);
-            txWriter = new SnapshotIsolationWriter(xid, snapshot, txsStatus);
+            txReader = new SnapshotIsolationReader(xid, snapshot, txsOutcomes);
+            txWriter = new SnapshotIsolationWriter(xid, snapshot, txsOutcomes);
         } else
             throw new IllegalArgumentException("TX Isolation level isn't supported: " + isolation);
         return new Tx(xid, txReader, txWriter);

@@ -1,7 +1,7 @@
 package io.qala.db;
 
-import static io.qala.db.TxStatus.ABORTED;
-import static io.qala.db.TxStatus.INVALID;
+import static io.qala.db.TxOutcome.ABORTED;
+import static io.qala.db.TxOutcome.UNKNOWN;
 
 /**
  * aka Table Record, Row
@@ -12,7 +12,7 @@ public class Tuple {
     final Object[] data;
     final TxId xmin;
     volatile TxId xmax, currentWriter;
-    volatile TxStatus xminStatus = INVALID, xmaxStatus = ABORTED;
+    volatile TxOutcome xminStatus = UNKNOWN, xmaxStatus = ABORTED;
     volatile Tuple nextVersion;
 
     public Tuple(TxId creator, Object[] data) {
