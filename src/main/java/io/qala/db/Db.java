@@ -18,9 +18,15 @@ public class Db {
         return createTx(xid, isolation, snapshot);
     }
 
+    public void abort(TxId xid) {
+        finishTx(xid, TxOutcome.ABORTED);
+    }
     public void commit(TxId xid) {
+        finishTx(xid, TxOutcome.COMMITTED);
+    }
+    private void finishTx(TxId xid, TxOutcome outcome) {
+        txsOutcomes.setStatus(xid, outcome);
         activeTxs.remove(xid);
-        txsOutcomes.commit(xid);
         if(activeTxs.floor(xid) == null)
             smallestFinished = xid;
     }

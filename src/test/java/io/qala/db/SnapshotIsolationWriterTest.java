@@ -58,6 +58,9 @@ public class SnapshotIsolationWriterTest {
         inThread(() -> outcomes.commit(deleted.xmax));
         assertThrows(ConcurrentUpdateException.class, () -> sut.write(deleted, tdata()));
     }
+    /**
+     * https://github.com/postgres/postgres/blob/bcf60585e6e0e95f0b9e5d64c7a6edca99ec6e86/src/backend/access/heap/heapam.c#L3440
+     */
     @Test public void proceedsIfSomeoneHasNotCommittedNewVersion_andThenAborts() {
         Tuple deleted = deleted();
         deleted.xmaxStatus = UNKNOWN;
@@ -75,10 +78,10 @@ public class SnapshotIsolationWriterTest {
     private static TxWriter sut(TxId xid, Snapshot snapshot, TxsOutcomes txsOutcomes) {
         return new SnapshotIsolationWriter(xid, snapshot, txsOutcomes);
     }
-    private static Object[] tdata() {
+    public static Object[] tdata() {
         return new Object[0];
     }
-    private static void inThread(Runnable r) {
+    public static void inThread(Runnable r) {
         new Thread(r).start();
     }
 }

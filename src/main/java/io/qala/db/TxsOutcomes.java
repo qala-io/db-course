@@ -17,6 +17,9 @@ public class TxsOutcomes {
         setStatus(xid, TxOutcome.ABORTED);
     }
 
+    /**
+     * https://github.com/postgres/postgres/blob/fd0625c7a9c679c0c1e896014b8f49a489c3a245/src/backend/access/heap/heapam_visibility.c#L457
+     */
     public void updateXmaxStatus(Tuple t, boolean waitIfUnknown) {
         TxOutcome status;
         if (t.xmax == null)
@@ -38,6 +41,9 @@ public class TxsOutcomes {
         t.xminStatus = status;
     }
 
+    /**
+     * https://github.com/postgres/postgres/blob/bcf60585e6e0e95f0b9e5d64c7a6edca99ec6e86/src/backend/access/heap/heapam.c#L3326
+     */
     TxOutcome getOrWaitForStatus(TxId xid) {
         TxOutcome outcome;
         //noinspection StatementWithEmptyBody spin until TX finishes
