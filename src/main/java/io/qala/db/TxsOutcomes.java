@@ -17,14 +17,16 @@ public class TxsOutcomes {
         setStatus(xid, TxOutcome.ABORTED);
     }
 
-    public void updateXmaxStatus(Tuple t) {
+    public void updateXmaxStatus(Tuple t, boolean waitIfUnknown) {
         TxOutcome status;
         if (t.xmax == null)
             status = ABORTED;
         else if (t.xmaxStatus != UNKNOWN)
             status = t.xmaxStatus;
+        else if(waitIfUnknown)
+            status = getOrWaitForStatus(t.xmax);
         else
-            status = getStatus(t.xmax);
+            status = getOutcome(t.xmax);
         t.xmaxStatus = status;
     }
     public void updateXminStatus(Tuple t) {
@@ -32,11 +34,17 @@ public class TxsOutcomes {
         if(t.xminStatus != UNKNOWN)
             status = t.xminStatus;
         else
-            status = getStatus(t.xmin);
+            status = getOutcome(t.xmin);
         t.xminStatus = status;
     }
 
-    TxOutcome getStatus(TxId xid) {
+    TxOutcome getOrWaitForStatus(TxId xid) {
+        TxOutcome outcome;
+        //noinspection StatementWithEmptyBody spin until TX finishes
+        while((outcome = getOutcome(xid)) == UNKNOWN);
+        return outcome;
+    }
+    TxOutcome getOutcome(TxId xid) {
         return status.getOrDefault(assertNotNull(xid), TxOutcome.UNKNOWN);
     }
     void setStatus(TxId xid, TxOutcome status) {

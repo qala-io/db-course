@@ -15,7 +15,7 @@ public class SnapshotIsolationWriter implements TxWriter {
         Tuple prev = oldVersion == null// when it's INSERT, not UPDATE
                 ? new Tuple(id, null)//just to eliminate all the null checks, it will be GCed quickly
                 : oldVersion;
-        txsOutcomes.updateXmaxStatus(prev);
+        txsOutcomes.updateXmaxStatus(prev, true);
         if(prev.xmaxStatus == TxOutcome.COMMITTED && !snapshot.isInSnapshot(prev.xmax))
             throw new ConcurrentUpdateException();
         Tuple newVersion = new Tuple(id, data);

@@ -13,11 +13,11 @@ public class TxsOutcomesTest {
         TxsOutcomes statuses = new TxsOutcomes();
         statuses.commit(xid(-100));
         statuses.abort(xid(100));
-        assertEquals(COMMITTED, statuses.getStatus(xid(-100)));
-        assertEquals(ABORTED, statuses.getStatus(xid(100)));
+        assertEquals(COMMITTED, statuses.getOutcome(xid(-100)));
+        assertEquals(ABORTED, statuses.getOutcome(xid(100)));
     }
     @Test public void invalidStatus_ifTxIsNotPresentInHistoryYet() {
-        assertEquals(UNKNOWN, new TxsOutcomes().getStatus(xid(integer())));
+        assertEquals(UNKNOWN, new TxsOutcomes().getOutcome(xid(integer())));
     }
     @Test public void throws_IfTxIsNull() {
         assertThrows(IllegalArgumentException.class, ()-> committed((TxId) null));

@@ -52,19 +52,33 @@ public class SnapshotIsolationWriterTest {
         Tuple deleted = deleted();
         deleted.xmaxStatus = UNKNOWN;
         TxId xid = deleted.xmax.add(-1);//we start before
-        TxWriter sut = sut(xid, snapshot(xid, xid), new TxsOutcomes(/*means this tx is still running*/));
+        TxsOutcomes outcomes = new TxsOutcomes(/*means this tx is still running*/);
+        TxWriter sut = sut(xid, snapshot(xid, xid), outcomes);
 
+        inThread(() -> outcomes.commit(deleted.xmax));
+        assertThrows(ConcurrentUpdateException.class, () -> sut.write(deleted, tdata()));
+    }
+    @Test public void proceedsIfSomeoneHasNotCommittedNewVersion_andThenAborts() {
+        Tuple deleted = deleted();
+        deleted.xmaxStatus = UNKNOWN;
+        TxId xid = deleted.xmax.add(-1);//we start before
+        TxsOutcomes outcomes = new TxsOutcomes(/*means this tx is still running*/);
+        TxWriter sut = sut(xid, snapshot(xid, xid), outcomes);
+
+        inThread(() -> outcomes.abort(deleted.xmax));
         Tuple t = sut.write(deleted, tdata());
         assertEquals(xid, deleted.xmax);
         assertEquals(UNKNOWN, deleted.xmaxStatus);
         assertNull(t.xmax);
         assertEquals(ABORTED, t.xmaxStatus);
     }
-
     private static TxWriter sut(TxId xid, Snapshot snapshot, TxsOutcomes txsOutcomes) {
         return new SnapshotIsolationWriter(xid, snapshot, txsOutcomes);
     }
     private static Object[] tdata() {
         return new Object[0];
+    }
+    private static void inThread(Runnable r) {
+        new Thread(r).start();
     }
 }
