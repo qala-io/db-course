@@ -47,12 +47,12 @@ This is a course for Enterprise/Web Software Developers. It goes into details of
 ## Transactions
 
 * Durability & Write-ahead logging
-* Data Anomalies: Dirty Write, Dirty Read, Non-repeatable Read, Phantoms, Write Skew
-* Concurrency: MVCC, Locking, 2 Phase Locking (2PL)
-* Redo and Undo logs
-* Isolation: Read Committed, Snapshot, Repeatable Read, Serializable
-* Dead Locks
+* Data Anomalies: Dirty Write, Dirty Read, Non-repeatable Read, Phantoms, Lost Update, Write Skew
+* Concurrency with locking. Locking, 2 Phase Locking (2PL); isolation: Read Committed, Repeatable Read, Serializable
+* [Concurrency with MVCC](./docs/mvcc.md): MVCC, MVCC2PL; isolation: Read Committed, Snapshot, Snapshot Serializable (SSI)
 * Hot backups
+* Redo and Undo logs
+* Dead Locks
 * Index, MVCC, Visibility Maps
 * Index vs Isolation vs Unique Constraints
 
