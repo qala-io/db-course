@@ -23,7 +23,6 @@ public class SnapshotIsolationWriter implements TxWriter {
         if(prev.xmaxStatus == TxOutcome.COMMITTED && !snapshot.isInSnapshot(prev.xmax))
             throw new ConcurrentUpdateException();
         Tuple newVersion = new Tuple(id, data);
-        newVersion.currentWriter = id;
         prev.nextVersion = newVersion;
         prev.xmax = id;
         prev.xmaxStatus = TxOutcome.UNKNOWN;

@@ -11,7 +11,7 @@ import static io.qala.db.TxOutcome.UNKNOWN;
 public class Tuple {
     final Object[] data;
     final TxId xmin;
-    volatile TxId xmax, currentWriter;
+    volatile TxId xmax;
     volatile TxOutcome xminStatus = UNKNOWN, xmaxStatus = ABORTED;
     volatile Tuple nextVersion;
 
