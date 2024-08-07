@@ -1,11 +1,11 @@
-package io.qala.db;
+package io.qala.db.pg;
 
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-import static io.qala.db.TxId.assertNotNull;
-import static io.qala.db.TxOutcome.ABORTED;
-import static io.qala.db.TxOutcome.UNKNOWN;
+import static io.qala.db.pg.TxId.assertNotNull;
+import static io.qala.db.pg.TxOutcome.ABORTED;
+import static io.qala.db.pg.TxOutcome.UNKNOWN;
 
 public class TxsOutcomes {
     private final ConcurrentMap<TxId, TxOutcome> status = new ConcurrentHashMap<>();

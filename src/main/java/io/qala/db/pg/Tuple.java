@@ -1,7 +1,7 @@
-package io.qala.db;
+package io.qala.db.pg;
 
-import static io.qala.db.TxOutcome.ABORTED;
-import static io.qala.db.TxOutcome.UNKNOWN;
+import static io.qala.db.pg.TxOutcome.ABORTED;
+import static io.qala.db.pg.TxOutcome.UNKNOWN;
 
 /**
  * aka Table Record, Row

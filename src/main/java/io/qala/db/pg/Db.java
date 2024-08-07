@@ -1,4 +1,4 @@
-package io.qala.db;
+package io.qala.db.pg;
 
 import java.util.NavigableSet;
 import java.util.concurrent.ConcurrentSkipListSet;

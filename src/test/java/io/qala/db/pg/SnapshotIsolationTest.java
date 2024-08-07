@@ -1,11 +1,11 @@
-package io.qala.db;
+package io.qala.db.pg;
 
 import org.junit.Test;
 
-import static io.qala.db.SnapshotIsolationWriterTest.inThread;
-import static io.qala.db.SnapshotIsolationWriterTest.tdata;
-import static io.qala.db.TupleTest.deleted;
-import static io.qala.db.TxIsolationLevel.SNAPSHOT;
+import static io.qala.db.pg.SnapshotIsolationWriterTest.inThread;
+import static io.qala.db.pg.SnapshotIsolationWriterTest.tdata;
+import static io.qala.db.pg.TupleTest.deleted;
+import static io.qala.db.pg.TxIsolationLevel.SNAPSHOT;
 import static org.junit.Assert.*;
 
 public class SnapshotIsolationTest {

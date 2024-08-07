@@ -1,9 +1,9 @@
-package io.qala.db;
+package io.qala.db.pg;
 
 import static io.qala.datagen.RandomShortApi.integer;
-import static io.qala.db.TxId.xid;
-import static io.qala.db.TxOutcome.COMMITTED;
-import static io.qala.db.TxOutcome.UNKNOWN;
+import static io.qala.db.pg.TxId.xid;
+import static io.qala.db.pg.TxOutcome.COMMITTED;
+import static io.qala.db.pg.TxOutcome.UNKNOWN;
 
 public class TupleTest {
     public static Tuple inserted() {

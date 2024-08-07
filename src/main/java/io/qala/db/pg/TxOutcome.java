@@ -1,4 +1,4 @@
-package io.qala.db;
+package io.qala.db.pg;
 
 import io.qala.datagen.RandomShortApi;
 

@@ -1,16 +1,16 @@
-package io.qala.db;
+package io.qala.db.pg;
 
 import org.junit.Test;
 
 import static io.qala.datagen.RandomShortApi.*;
-import static io.qala.db.SnapshotTest.snapshot;
-import static io.qala.db.TupleTest.deleted;
-import static io.qala.db.TxId.xid;
-import static io.qala.db.TxOutcome.ABORTED;
-import static io.qala.db.TxOutcome.UNKNOWN;
-import static io.qala.db.TupleTest.inserted;
-import static io.qala.db.TxsOutcomesTest.aborted;
-import static io.qala.db.TxsOutcomesTest.committed;
+import static io.qala.db.pg.SnapshotTest.snapshot;
+import static io.qala.db.pg.TupleTest.deleted;
+import static io.qala.db.pg.TxId.xid;
+import static io.qala.db.pg.TxOutcome.ABORTED;
+import static io.qala.db.pg.TxOutcome.UNKNOWN;
+import static io.qala.db.pg.TupleTest.inserted;
+import static io.qala.db.pg.TxsOutcomesTest.aborted;
+import static io.qala.db.pg.TxsOutcomesTest.committed;
 import static org.junit.Assert.*;
 
 public class SnapshotIsolationWriterTest {
