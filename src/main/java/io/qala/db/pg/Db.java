@@ -1,5 +1,7 @@
 package io.qala.db.pg;
 
+import io.qala.db.TxIsolationLevel;
+
 import java.util.NavigableSet;
 import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.concurrent.atomic.AtomicInteger;
