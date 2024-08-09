@@ -1,8 +1,8 @@
-package io.qala.db.pg;
+package io.qala.db;
 
 import java.util.Objects;
 
-class TxId implements Comparable<TxId> {
+public class TxId implements Comparable<TxId> {
     private final Integer id;
 
     public TxId(int id) {
@@ -18,6 +18,9 @@ class TxId implements Comparable<TxId> {
         return xid;
     }
 
+    public boolean precedes(TxId that) {
+        return compareTo(that) < 0;
+    }
     public boolean precedesOrEqual(TxId that) {
         return compareTo(that) <= 0;
     }

@@ -1,5 +1,6 @@
 package io.qala.db.pg;
 
+import io.qala.db.TxId;
 import io.qala.db.TxIsolationLevel;
 import org.junit.Test;
 

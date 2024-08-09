@@ -1,7 +1,9 @@
 package io.qala.db.pg;
 
+import io.qala.db.TxId;
+
 import static io.qala.datagen.RandomShortApi.integer;
-import static io.qala.db.pg.TxId.xid;
+import static io.qala.db.TxId.xid;
 import static io.qala.db.pg.TxOutcome.COMMITTED;
 import static io.qala.db.pg.TxOutcome.UNKNOWN;
 

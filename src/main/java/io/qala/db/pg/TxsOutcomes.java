@@ -1,9 +1,11 @@
 package io.qala.db.pg;
 
+import io.qala.db.TxId;
+
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-import static io.qala.db.pg.TxId.assertNotNull;
+import static io.qala.db.TxId.assertNotNull;
 import static io.qala.db.pg.TxOutcome.ABORTED;
 import static io.qala.db.pg.TxOutcome.UNKNOWN;
 

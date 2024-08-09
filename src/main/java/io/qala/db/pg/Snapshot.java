@@ -1,5 +1,7 @@
 package io.qala.db.pg;
 
+import io.qala.db.TxId;
+
 import java.util.Set;
 
 /**

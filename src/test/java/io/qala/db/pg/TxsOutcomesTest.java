@@ -1,9 +1,10 @@
 package io.qala.db.pg;
 
+import io.qala.db.TxId;
 import org.junit.Test;
 
 import static io.qala.datagen.RandomShortApi.integer;
-import static io.qala.db.pg.TxId.xid;
+import static io.qala.db.TxId.xid;
 import static io.qala.db.pg.TxOutcome.*;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThrows;

@@ -1,5 +1,7 @@
 package io.qala.db.pg;
 
+import io.qala.db.TxId;
+
 public class SnapshotIsolationWriter implements TxWriter {
     final TxId id;
     private final Snapshot snapshot;

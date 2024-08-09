@@ -1,5 +1,7 @@
 package io.qala.db.pg;
 
+import io.qala.db.TxId;
+
 import static io.qala.db.pg.TxOutcome.COMMITTED;
 
 public class SnapshotIsolationReader implements TxReader {

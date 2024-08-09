@@ -1,11 +1,12 @@
 package io.qala.db.pg;
 
+import io.qala.db.TxId;
 import org.junit.Test;
 
 import java.util.Set;
 
 import static io.qala.datagen.RandomShortApi.integer;
-import static io.qala.db.pg.TxId.xid;
+import static io.qala.db.TxId.xid;
 import static org.junit.Assert.*;
 
 public class SnapshotTest {

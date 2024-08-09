@@ -1,10 +1,11 @@
 package io.qala.db.pg;
 
+import io.qala.db.TxId;
 import org.junit.Test;
 
 import static io.qala.datagen.RandomShortApi.integer;
 import static io.qala.db.pg.SnapshotTest.snapshot;
-import static io.qala.db.pg.TxId.xid;
+import static io.qala.db.TxId.xid;
 import static io.qala.db.pg.TxOutcome.UNKNOWN;
 import static io.qala.db.pg.TxsOutcomesTest.*;
 import static io.qala.db.pg.TupleTest.inserted;

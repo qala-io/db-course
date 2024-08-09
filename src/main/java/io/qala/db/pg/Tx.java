@@ -1,5 +1,7 @@
 package io.qala.db.pg;
 
+import io.qala.db.TxId;
+
 public class Tx {
     final TxId id;
     private final TxReader reader;
