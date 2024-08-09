@@ -2,6 +2,7 @@ package io.qala.db.mysql;
 
 import io.qala.db.TxId;
 import io.qala.db.TxIsolationLevel;
+import io.qala.db.pg.TxOutcome;
 
 import java.util.NavigableSet;
 import java.util.concurrent.ConcurrentSkipListSet;
@@ -20,6 +21,9 @@ class Db {
         return createTx(xid);
     }
 
+    public void abort(TxId xid) {
+
+    }
     private Tx createTx(TxId xid) {
         return new Tx(xid, storage);
     }
