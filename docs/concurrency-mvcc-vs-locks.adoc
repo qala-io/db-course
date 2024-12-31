@@ -1,0 +1,31 @@
+= Database concurrency intro
+
+You have 2 parallel transactions: 
+
+. One \(R) reads a record
+. The other one (W) modifies it
+ 
+Should we let R proceed? If W modified the record, and R read the latest version of data, it's possible that W aborts in the end. So basically R read the data that never existed. This is called a Dirty Read, and if Dirty Reads are allowed in a database, then it's basically means no transaction isolation.
+
+So we can't allow R to read the row if it was modified by a parallel tx. Instead, we have 2 options:
+
+1. Transactions block each other. If R got to the record first, then W waits until R finishes. If W got there first, then R waits.
+2. Allow both transactions to proceed, but let them work with their own versions of the row. This is called Multiversioning or Multi-version Concurrency Control (MVCC). In fact, you can have 10 transactions each working with their own versions of records. This helps reduce the waiting time, and usually results in better performance.
+
+Both options are widely used:
+
+. If you use `select ... for share` or `select ... for update`, you lock the record. No other tx can modify it until the first tx finished. And you always work with the latest versions of the records.
+. If there's no `for share` or `for update` or `for [anything]`, then almost all transactional databases resort to MVCC.
+
+These mechanisms can be implemented very differently in different databases - with all sorts of side effects and performance trade-offs.
+
+Notice, though, that MVCC is only possible for `SELECT` statements. If 2 transactions modify the row, then we must always use the locking, there's no way for them to keep working with their own versions of rows.
+
+== MVCC: Undo storage vs Copy-on-Write
+
+Even without parallel transactions, we need at least 2 versions of any row. Because if a tx updates a row and then aborts, we must return the old value back. Which means that previous version must be kept somewhere.
+
+MVCC extends this by allowing more than 2 versions of a row. But where to keep them? There are 2 common implementations:
+
+. Copy rows every time we modify something and keep them in the table itself. Which means our table physically contains multiple versions of the same row, and each tx somehow knows which version it can see. In such implementations if a tx aborts or commits we simply choose which version of the row is the most recent. This is how Postgres works. Both `commit` and `abort` operations are basically free, but even a slight modification to a row results in a full copy. Additionally, the older versions of tuples must be deleted at some point, so we need an additional complication - a background Garbage Collection procedure.
+. Alternatively, we can have a separate storage (called Undo storage) where the previous versions are written. We don't even have to write full records there - only the attributes that were actually updated. Transactions that must see older versions first look at the row in the table, then find the updates inside the Undo and combine this information to get the version that they can actually see. Also, during a tx abort we must restore the previous version of the row from the Undo storage and write it back to the table. Which means that abort operations are very costly. This is how most other relational databases work (MySQL, Oracle, etc).

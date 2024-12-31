@@ -36,20 +36,19 @@ This is a course for Enterprise/Web Software Developers. It goes into details of
 * Hash Join
 * Analyzing Query Plan
 
-## Concurrency
+## Concurrency and Transactions
 
+* [Concurrency intro: MVCC vs Locking](./docs/concurrency-mvcc-vs-locks.adoc)
+* [Postgres MVCC](./docs/mvcc.md), isolation: Read Committed, Snapshot, Snapshot Serializable (SSI)
+* [Mysql vs Postgres MVCC](https://github.com/ctapobep/blog/issues/24)
 * Pessimistic Locking
 * `skip locked` and background jobs
 * Optimistic Locking
 * Materializing locks
 * Advisory locks
-
-## Transactions
-
 * Durability & Write-ahead logging
 * Data Anomalies: Dirty Write, Dirty Read, Non-repeatable Read, Phantoms, Lost Update, Write Skew
 * Concurrency with locking. Locking, 2 Phase Locking (2PL); isolation: Read Committed, Repeatable Read, Serializable
-* [Concurrency with MVCC](./docs/mvcc.md): MVCC, MVCC2PL; isolation: Read Committed, Snapshot, Snapshot Serializable (SSI)
 * Hot backups
 * Redo and Undo logs
 * Dead Locks
