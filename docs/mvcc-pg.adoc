@@ -1,52 +1,51 @@
-Multi-Version Concurrency Control (MVCC)
-----------------------------------------
+= Multi-Version Concurrency Control (MVCC)
 
 MVCC is a way of doing concurrent transactions that access the same data. There are
-[different implementations of MVCC](https://15721.courses.cs.cmu.edu/spring2020/papers/03-mvcc1/wu-vldb2017.pdf),
-here we'll focus on the used in PostgreSQL - it's very simple and beautiful. The basic principles are:
+https://15721.courses.cs.cmu.edu/spring2020/papers/03-mvcc1/wu-vldb2017.pdf#[different implementations of MVCC^],
+here we'll focus on the one used in PostgreSQL - it's very simple and beautiful. The basic principles are:
 
-1. All rows are immutable. If there's an update to a row - we create a new version of it with the new data. The old
+1. All rows are immutable. If there's an update to a row, we create a new version of it with the new data. The old
 version stays in the table until it's Garbage Collected by a background process.
 2. Each transaction (tx) is assigned a sequence number - Transaction ID (`xid`). So the 1st tx could have xid=1, the next one will have xid=2. It's always possible to tell which tx started first.
 3. Each version of a row has metadata associated with it:
-```
+----
 xmin - tx that created this version of the row
 xmax - tx that deleted this version of the row
-```
+----
 4. When tx wants to read a row - it checks if its xid is between the row's `xmin` and `xmax`. And this determines if the tx can read this particular version of the row.
 
 So it's possible to have a situation like this:
 
-```
+----
 insert into users values(1, 'jack');
 
 ID | username | xmin | xmax |
 1  | jack     |  1   | null | <- created by tx=1 and hasn't been deleted
-```
+----
 
-Then a tx with xid=22 comes and UPDATEs the row, now in DB we have:
+Then a tx with xid=22 comes and `UPDATE`s the row, now in DB we have:
 
-```
+----
 update users set username='john' where username='jack';
 
 ID | username | xmin | xmax |
 1  | jack     |  1   | 22   | <- deleted by tx=22
 1  | john     |  22  | null | <- created by tx=22
-```
+----
 
 Now xid=118 deletes the row:
 
-```
+----
 delete from users where username='john';
 
 ID | username | xmin | xmax |
 1  | jack     |  1   | 22   | <- invisible to tx=118 because xmax < 118
 1  | john     |  22  | 118  | <- deleted by tx=118
-```
+----
 
-Things are more complicated in real life because xmax could be set, but the actual tx was aborted and so the version shouldn't be considered deleted. Also, we haven't discussed what will happen if 2 tx's update the same row at the same time. You can read more in [this article](http://www.interdb.jp/pg/pgsql05.html), but it's actually easier to deduce it ourselves than to understand others' explanation, and so we'll model MVCC in our own code.
+Things are more complicated in real life because xmax could be set, but the actual tx was aborted and so the version shouldn't be considered deleted. Also, we haven't discussed what will happen if 2 tx's update the same row at the same time. You can read more in http://www.interdb.jp/pg/pgsql05.html#[this article^], but it's actually easier to deduce it ourselves than to understand others' explanation, and so we'll model MVCC in our own code.
 
-# Implementing MVCC
+== Implementing MVCC
 
 To solidify our understanding of MVCC let's try to implement this logic ourselves. This is going to be a simplified model of how DB does the same.
 
@@ -59,7 +58,7 @@ To solidify our understanding of MVCC let's try to implement this logic ourselve
 7. Add `xminStatus`, `xmaxStatus` to Tuple, fill them when creating a Tuple and when reading it
 8. In `Tx` implement a new method: `Tuple write(Tuple oldVersion, Object[] newData){}` - it should wait if another tx is already updating the row
 
-# Snapshot vs Read Committed isolation levels
+== Snapshot vs Read Committed isolation levels
 
 The main thing that's different between these 2 levels is when a Snapshot is taken:
 
@@ -71,4 +70,4 @@ Another difference is what happens if another tx updates the rows that we want t
 * At Snapshot Isolation PG will throw an error
 * At Read Committed it will re-evaluate `where` conditions and will re-write the row with a new version if the row still matches the predicate
 
-# SSI: (Snapshot) Serializable Isolation
+== SSI: (Snapshot) Serializable Isolation

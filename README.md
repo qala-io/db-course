@@ -39,7 +39,7 @@ This is a course for Enterprise/Web Software Developers. It goes into details of
 ## Concurrency and Transactions
 
 * [Concurrency intro: MVCC vs Locking](./docs/concurrency-mvcc-vs-locks.adoc)
-* [Postgres MVCC](./docs/mvcc.md), isolation: Read Committed, Snapshot, Snapshot Serializable (SSI)
+* [Postgres MVCC](./docs/mvcc-pg.adoc), isolation: Read Committed, Snapshot, Snapshot Serializable (SSI)
 * [Mysql vs Postgres MVCC](https://github.com/ctapobep/blog/issues/24)
 * Pessimistic Locking
 * `skip locked` and background jobs
