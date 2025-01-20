@@ -12,6 +12,7 @@ version stays in the table until it's Garbage Collected by a background process.
 xmin - tx that created this version of the row
 xmax - tx that deleted this version of the row
 ----
+[start=4]
 4. When tx wants to read a row - it checks if its xid is between the row's `xmin` and `xmax`. And this determines if the tx can read this particular version of the row.
 
 So it's possible to have a situation like this:
