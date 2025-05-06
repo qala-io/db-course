@@ -1,0 +1,179 @@
+= Designing database for querying
+
+The goal of this course is to start learning about a database design: how to create tables, how tables look are organized, how indices work and which columns deserve to be indexed, constraints, etc.
+
+*Prerequisites*:
+
+* SQL basics: at least `select`, `join`, `group by`, `order by`. Overall, here are the xref:0course-sql.adoc[SQL topics]
+that you'll need throughout the career, but we won't need that much for this course.
+* Programming basics: using loops, arrays or lists, maps/dictionaries
+
+== Choose a project
+
+DB design starts with the use cases. E.g. if we create a web app, we start mocking up UI to define what data we expect
+users to enter and to see. Which in turn dictates what database we pick, what tables and columns we create, and what
+the queries will look like. We start with UI because this is usually the most uncertain part of the app, and also
+because it defines most of the use cases.
+
+So first, generate ideas:
+
+* Figure out an app that you'd like to work on. If you don't have ideas, just pick some existing app you use.
+* Use tools like https://excalidraw.com/[Excalidraw^] to mock up the UI. You need to have 2-3 screens that the user
+  will see.
+* Define which types of objects (like users, departments) the app needs, and which attributes they have.
+* Besides the screens where the data is filled/shown, think of lists and searches:
+  which params to search by, what data to return, what's the order of resulting entries. This is where a lot of
+  complications arise when designing a database.
+
+== Defining tables
+
+Now we want to define tables to put in all those objects with their attributes.
+
+Tables are stored in Schemas (aka Database in MySQL). Some DB engines allow grouping schemas further in higher level
+objects. E.g. in Postgres schemas are stored in "databases", while the whole Postgres instance is (confusingly)
+called a Cluster (has nothing to do with what we usually call a Cluster in software development).
+
+So:
+
+. Install Postgres and connect to it using one of the DB client tools (DataGrip, DBeaver)
+. Create a database: `create database some_dbname;`. Or just use the default one called `postgres`.
+. Connect to that database (or do nothing if you decided to work inside `postgres`)
+. Create a schema: `create schema some_appname`
+. Execute `set search_path some_appname` so that it's considered the default schema, otherwise you'll have to prefix
+  all your tables with the schema name in every SQL command. You'll need to do this every time you open your DB client
+  tool.
+
+Once the schema exists, we can start creating tables. DDL is a data definition language, used to define tables,
+columns, constraints, etc. Example:
+
+[source,sql]
+----
+create table departments (
+  id text constraint pk_department primary key,
+  insert_time timestamp with time zone,
+  name text
+);
+create table users (
+  id text constraint pk_user primary key,
+  insert_time timestamp with time zone,
+  department text constraint fk_users__department references departments(id),
+  name text,
+  age int4,
+  weight float8,
+  props jsonb
+);
+----
+
+Possible conventions:
+
+* Naming tables and columns differs from team to team: UPPER_CASE_SNAKE vs lower_case_snake vs camelCase vs
+  UpperCamelCase. Capitalized_Snake is popular only in SQL Server circles. In most databases this doesn't
+  actually impact the names, as they in fact are case-insensitive. But there are exceptions, e.g. MySQL on Linux/MacOS
+  is case-sensitive. So better to stick with one convention within the project.
+* Foreign Key columns: `department_id` is more common than simple `department`
+* Primary key may be `user_id`/`department_id` instead of `id`. This allows writing shorter JOIN:
+  `join users u using(user_id)` instead of `join users u on u.id=other_table.user_id`. But this convention isn't common.
+* `+fk_users__departments+` is BEM style naming from the Web development, where `+__+` is the separator in the hierarchy
+  of names. Not widely used in databases, especially in Oracle where identifiers can't exceed 30 symbols. I haven't
+  seen well established conventions for the constraints and indices.
+
+== xref:id-generation.adoc[Generating IDs]
+
+== Filling the tables
+
+Generate INSERT statements to fill the tables. Use special functions for
+xref:0course-sql.adoc#select-from-functions[data generation] to fill thousands or millions of rows.
+
+If you made a mistake and want to clear the whole table, use `truncate [table name]`. It's a fast analog of
+`delete from [table name]`, but it's also more dangerous as it can't be rolled back.
+
+== DB Migrations
+
+In regular web/enterprise apps we don't run DDL manually. Rather we create and version SQL scripts in source code
+and keep them in Git or other VCS. Then there are tools (Flyway in Java, Yoyo in Python) that apply the migrations.
+E.g. initially it could be just:
+
+----
+migrations
+  |__V1.0__initial.sql
+----
+
+As the app evolves, we need to run additional DDLs. We never update the scripts that have been applied to real
+databases, instead we add new migrations that change the previous state:
+
+----
+migrations
+  |__V1.0__initial.sql
+  |__V2.0__add_some_table.sql
+  |__V3.0__add_some_column.sql
+  |__...
+----
+
+== Searching
+
+* Searching in arrays is slow: `12, 101, 5, 24, 0, 100, -3`.
+** Especially if we're looking for a non-existing value. As someone said:
+   "_It's hard to find a black cat in a dark room, especially if there is no cat_".
+** This is called a linear-complexity algorithm and is denoted $\theta(N)$. It means that the algorithm execution time
+   scales linearly with the number of elements.
+* Searching in sorted arrays is much faster: `..., -3, 0, 5, 12, 24, 100, 101, ...`, we use a Binary Search for this.
+** This is an example of a logarithmic-complexity algorithm and is denoted $\theta(\log N)$, and in programming it's
+   always shorthand for $\theta(\log_2 N)$
+** Now the updates in the beginning or in the middle are slow: we'll have to shift all the values left before we can
+  insert to the beginning. Which is a $\theta(N)$ of movements.
+* Search Trees are fast to search through and to update: both are $\theta(log N)$. Let's consider a Binary Tree.
+
+== Table organization
+
+* Index-organized tables
+* xref:heap-organized-table.adoc[Heap-organized tables]
+* Pages and page caches: when table scan is faster?
+* Because databases read data page-wise, B-tree is a more natural choice than the typical Binary Trees. While
+  insertion into each node of a B-tree is $\theta(NumOfElementsInNode)$, our main concern is the number of
+  reads from the disk.
+
+== SQL Plan
+
+* `explain`, `explain analyze` can be used to learn how the database actually executes the queries: what
+  tables/indices are used, when it sorts or aggregates, etc. This is the main tool for troubleshooting of
+  slow queries.
+* sequential table scan - must be elimitated if possible
+* index scan
+* table statistics
+
+== Index vs Constraint
+
+* Indexes and unique constraints
+* Primary (aka Clustering Index, Index-organized tables)
+* Secondary keys
+
+== Foreign Keys
+
+* one-to-one, one-to-many, many-to-one, many-to-many
+* cascades
+* index considerations
+
+== Joining algorithms
+
+* nested loop, sort-merge, hash
+
+== More on indices
+
+* Low cardinality
+* Multi-column search: composite index, bitmaps
+* Index based on functions
+* Covering index
+* Index with conditions
+
+== Pagination
+
+* Offsets & page size
+* Manually with `where id > ?`
+
+== Other types of databases
+
+* OLTP vs OLAP databases
+* Document databases
+* Key-value storage
+* Blob storage
+* Graph databases
