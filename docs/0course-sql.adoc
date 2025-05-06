@@ -1,0 +1,242 @@
+= SQL Course
+
+== Step 1: Terminology and basic SQL
+
+* Relational databases: Postgres, MySQL, Oracle, MS SQL
+* Clients: DBeaver, JetBrains products
+* Table/relation, record/row/tuple, schema, database
+* Connection string
+* Select, projection
+* `count()`
+* Conditions: =, >, <, !=, <>, in, like, ~, ~~, is null
+* Sorting
+* Table and column aliases
+* Conventions. "Name" vs Name
+* Formatting
+
+=== Homework:
+
+1. Connect to the database
+2. Look through the tables and their columns - find some corresponding entities and their attributes on UI
+3. Try changing something on the UI and see the database state change accordingly
+4. Select injections with name that ends with 01
+5. Select peaks of some injection, sort peaks by area
+6. Select Injections of some Batch (open a batch, take its ID from address bar), order them by Acquisition Time. Now try by Name desc.
+7. Find chromatograms in some injection with no association with substances (`substance` column is null)
+
+== Step 2: Joins
+
+* Select from multiple tables without joins
+* Unique columns (Keys), Primary Key, Secondary Key
+* Foreign Key
+* Joining 2 tables: get chromatogram with peaks
+* Joining 3 tables: get injection with chromatograms and their peaks
+* One-to-One, One-to-Many, Many-to-Many
+* Outer joins (Left, Right), Inner join. The default is different for different vendors.
+* Additional joining conditions
+* `using` keyword
+
+=== Homework:
+
+1. (Does not relate to joins) Select all the injections that aren't added to any batches, ordered by import time. We should get the same records as https://sqlcourse.peaksel.elsci.io/injections[this page] shows.
+2. Get all the peaks in all batches sorted by Area. Note, that peaks reference injections, and injections reference batches. So there will be 3 tables involved.
+3. Find batches and their peaks, but this time we're interested only in peaks on Total chromatograms (see `chromatograms.total_signal` column)
+4. Count the number of rows in the last query. And compare it to the number of rows we got before that.
+5. Get structure, MF, alias of all substances (the structure itself is in `structures` table). We're not interested in substances w/o structure. Try solving the last condition first with `left join` and additional `where` statement, then try with just `inner join`.
+6. Get all peaks from injections of some batch. Select from injections, the rest should be joined. We don't want to see injections w/o peaks.
+7. Modify last query to only capture `modified_manually` peaks. Try doing this with `where` and with additional conditions inside `join`.
+8. Can you rewrite the last statement with a `right join` if you swap tables in `join` and `select` statements?
+
+== Grouping, aggregating functions
+
+* Unique substances within peaks
+* Number of peaks in injection
+* Injections with n of peaks > 0
+* Distinct keyword
+* Group by multiple fields: injections w/ 2 peaks and 2 substances
+* Get injection w/ max number of peaks, join them with peaks
+* Aggregation functions: count(), max(), min(), avg(), sum()
+* `string_agg(col, 'separator' order by col)`
+
+=== Homework Part 1
+
+1. Look at `detector_runs` table. It represents physical detectors which may produce more than 1 chromatogram. Now find a way to see all `type`s of detectors currently present in DB. Try doing this with `distinct`, then see if you can achieve the same with `group by`.
+2. Count how many rows of each detector type are present in DB.
+3. Each chromatogram references its `detector_run`. Count how many `chromatograms` of each detector `type` are present in DB. This will require both `join` and `group by`.
+4. Select all chromatograms and an average peak area within those chromatograms. We're interested only in stats across _not_ `modified_manually`.
+
+=== Homework Part 2
+
+. See if there are injections with duplicated names in the database. Note, that `ID` is unique, while `name` of injections isn't. Using `having` and `count()` you can filter out those injection names that are _not_ duplicated leaving just the duplicates.
+. Get injections within some batch that have more than 2 chromatograms
+. Then add a comma-separated list of `detector_runs.type`s within each injection
+. Add a number of peaks within each injection and an average peak area
+. Similar to prev task get all peaks within a batch, and for each injection get an average area. But now we need 2 rows for each injection - one for `modified_manually` peaks (and the average area among these peaks), and for others (same - with average area). If injection has only one type of peaks, then there will be only 1 row, not 2.
+. Now leave only those injections that have more than 1 peak. Filter out the rest.
+
+== Subselect
+
+* Sub-select in `where`: injections with peaks where peak area = sum(all peaks on that chromatogram)
+* Sub-select in `select`: peak area compared to the sum of peak areas on that chromatogram
+
+=== Homework
+
+1. Select a single peak with the largest area from the table. First we need to select the max area within the table (sub-select), and in the outer select we can find the peak with that exact area.
+2. Now select the largest peak across each chromatogram. The output should show chromatogram data and an additional column `max_peak_area`. First do this with a `join` and `group by`. Then try doing the same with a sub-select: `select (select ... from ..) from ...`.
+3. Now that you have chromatograms with their Max Peak Area, calculate the sum of these areas per injection. So the output should have columns: `injection, max_peak_area_sum`. Notice that you couldn't do this without sub-selects this time - as first we had to prepare the data set to sum across.
+
+== Data types, functions, casting
+
+* Strings: upper(), lower(), replace(), concat()
+* coalesce()
+* Numbers: algebraic operations, round(), least()/greatest()
+* Division of integers vs double
+* Casting
+* boolean
+* Dates: `now()`, `date_trunc('day', creation_time)`, `extract(year from creation_time)`, `to_char(current_timestamp, 'month')`, `'2022-11-29'::timestamp`
+* `interval '1 day'`, `extract(days from creation_time - date_trunc('year', creation_time))`
+* Using functions in conditions, selects, group by
+
+=== Homework:
+
+. Select all users from the `users` table. Combine firstname and lastname into 1 column, separate them with a space.
+. There are injections with the same name (injection and INJECTION are considered same for this task) in our database. Find all the rows of such duplicates, select all the information about these injections.
+. Peaks have area, as well as chromatograms. Find the percentage of the peak/chromatogram. Compare this to the column `area_perc` in the peak - does it give the same result?
+. Calculate a number of injections created monthly, you should get something like this
+----
+month    | injections_created
+2022 Nov | 133
+2022 Dec | 564
+----
+Find injections that contain two dashes in their names: `xxxxxxx-xxxx-xxxx`. The first 2 parts of it (`xxxxxxx-xxxx`) is an experiment name. List all the experiments and the number of injections in each of them.
+
+[#cte]
+== CTE
+
+=== Homework
+
+* We need to calculate the stats on our tables - the number of rows in different tables and the ratio between these numbers. Try to do this with sub-selects and then with CTEs. Example of an output:
+----
+n_of_peaks | n_of_chromatograms | n_of_injections | peaks_per_chromatogram | peaks_per_injection | chromatograms_per_injection
+500        |      200           |     10          | 2.5                    | 50                  | 20   
+----
+* List all peaks (full rows) which are the largest peaks on a chromatogram _and_ their area is greater than all other peaks on that chromatogram combined (you can't use chromatogram area as a shortcut - you must sum up peak areas). We're not interested in cases when there's only 1 peak per chromatogram.
+
+== Window functions
+
+* row_number()
+* sum()
+* lag()
+
+=== Homework Part 1
+
+* List the largest peak of each chromatogram
+* List the first peak of each chromatogram (by `rt_minutes`)
+* List peaks of chromatograms and show how much time elapsed between two peaks (use `start_minutes` and `end_minutes` of peaks). Add yet another column `not_resolved` and set it to `true` if peak touches (the values of borders are equal) the previous peak.
+
+=== Homework Part 2
+
+Calculate conversion for each injection in a batch, the result should be similar to [this table](https://sqlcourse.peaksel.elsci.io/batch/8MTdbvynjJh).
+
+Conversion represents the amount of reactant (e.g. Core) that went into forming Product molecules. It tells us the effectiveness of a reaction. One way to calculate it is: `product_amount / (reactant_amount + product_amount)`. Because we don't really have amounts - we will use Peak Area instead as an approximation. So: `conversion=product_peak_area/(product_peak_area + reactant_peak_area)`.
+
+Notes:
+1. We need to consider only peaks on a single chromatogram - typically we need to choose some extracted UV chromatogram (like `UV 254`). See `chromatograms.nm` column.
+2. It's possible that both Product and Core don't have peaks at all. In this case we want to show `N/A`
+3. If we have only Core, then it's 0
+4. If it's only Product, then 1
+5. It's possible there are more than 1 peak of Product or Core. In such a case let's take the largest.
+
+=== Homework Part 3
+
+Calculate chromatogram names the same way Peaksel does it. Notice that some Injections may contain the same detectors more than once. In some cases even though physically it's the same detector, it may take different measurements at different times, and so in the extreme cases we may get dozens and even hundreds of detector_runs per Injection, see this example: https://sqlcourse.peaksel.elsci.io/injection/8MxJzPev7Mw[03JUN2020_COV_AAA_PL_021].
+
+In order to differentiate between detector_runs with the same name, Peaksel suffixes them with a letter: A, B, C, etc. You need to write a query that returns a list of chromatograms with their _names_ within the injection the same way Peaksel does it. Note, that if there's just 1 instance of a detector_run of each type in the injection, then we don't have A/B/C suffixes.
+
+These names also consist of:
+1. Analytical Method (UV, MS, ELS, etc).
+2. Detector Sub-Type (if applicable): SQD, QTOF, etc.
+3. If it's a Mass Spec, then ion_mode will say if it's positive or negative (+ or - sign)
+
+== Case-When
+
+* In select statement
+* Inside `count()`
+
+=== Homework
+
+* For each injection we'd like to see its "status". Possible values:
+* TBD (To Be Done) - when an injection contains no substances
+* Analyzed - when there's at least one substance
+* Curated Manually - when there's at least one peak `modified_manually`
+* Also add another column: if injection has a creator, then let's show their First Last name. If not, let's show "Unknown".
+
+[#select-from-functions]
+== Selecting from functions
+
+* Selecting from functions: `now()`, `random()`, `generate_series()`
+* Cross join
+
+=== Homework: 
+
+1. For each day of current and previous years, get the number of injections uploaded. Days without injections should have 0.
+2. There are 5 dice: two are 4-sided (numbers 1 through 4) and the other 3 are 6-sided (numbers 1 through 6). What's the probability the sum is going to be 15? To figure it out you need to generate all possible combinations of these 5 dice, then count the number of combinations that sum up to 15 and number of all possible combinations. Then divide one by the other.
+3. We will consider a famous Tuesday Boy problem in Probability Theory. Our goal would be to generate a set of rows and then calculate probabilities (frequencies).
+
+.Problem1 - probability of a boy given families with at least one boy
+[%collapsible]
+====
+There's a set of families with 2 children. We're interested in families where at least one of the kids is a boy. When selecting a random family out of this set, what's the probability that there are 2 boys?
+
+Feel free to calculate the probability, but then we'll need to check it with SQL:
+
+1. Generate a set of rows that represent families. Columns: `child1_boy` (boolean), `child2_boy` (boolean). The each value could be either `true` or `false` with 50% chance.
+2. Out of the set, filter out families that don't have boys
+3. And finally count a) families with 2 boys b) number of all families. Then calculate the proportion of one to another
+
+Is the result consistent with what you predicted?
+====
+
+.Problem2 - probability of a boy given families with at least one boy born on Tue
+[%collapsible]
+====
+Now the condition is a little more complicated: our families have at least one boy born on Tue. When selecting a random family, what's the probability it's a boy?
+
+1. Let's add 2 additional columns to our generated data set: `child1_weekday`, `child2_weekday`. Use either numbers or strings to denote days of weeks. Each day is equally probable.
+2. From the generated set filter out only rows where there's at least one boy. And at least one of the boys has birthday on Tue.
+3. Now calculate the proportion of families with 2 boys
+
+Does the result surprise you? Can you explain why this is the case?
+====
+
+== Union
+
+* `union all` vs `union`
+
+=== Homework
+
+We want to generate statistics for uploading injections, which should look like this:
+
+----
+user   | uploaded_month  | count
+---------------------------------
+Rick   | Jan             | 100 
+Rick   | Feb             | 50
+... 
+Morty  | Jan             | 111 
+Morty  | Feb             | 232
+...
+all    | Jan             | 666 
+all    | Feb             | 282
+... 
+Rick   | all             | 2523
+Morty  | all             | 1880
+...
+all    | all             | 12513
+----
+
+== ROLLUP & CUBE
+
+== Nest steps
+
+Now that you know how to query data, it's time to learn how the databases actually store teh data and how to better _design_ the database (tables, indices) so that your queries work fast: xref:0course-design-for-querying.adoc[Design database for querying].
