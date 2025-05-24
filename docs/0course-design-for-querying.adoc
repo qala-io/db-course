@@ -15,15 +15,8 @@ users to enter and to see. Which in turn dictates what database we pick, what ta
 the queries will look like. We start with UI because this is usually the most uncertain part of the app, and also
 because it defines most of the use cases.
 
-So first, generate ideas:
-
-* Figure out an app that you'd like to work on. If you don't have ideas, just pick some existing app you use.
-* Use tools like https://excalidraw.com/[Excalidraw^] to mock up the UI. You need to have 2-3 screens that the user
-  will see.
-* Define which types of objects (like users, departments) the app needs, and which attributes they have.
-* Besides the screens where the data is filled/shown, think of lists and searches:
-  which params to search by, what data to return, what's the order of resulting entries. This is where a lot of
-  complications arise when designing a database.
+So first, generate some ideas. Here's xref:design-software.adoc[an example] of how you start designing software.
+If you can't figure out your own project, just pick some existing app you use.
 
 == Defining tables
 
