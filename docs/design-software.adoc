@@ -1,8 +1,17 @@
 = Designing software
 
-== Determine the goal of the software
+This is an example of how you can start designing a software project. We start with:
 
-Example:
+. The idea: what problem we want to solve
+. Most important use cases
+. How the product is going to solve these problems
+. Mockups. To make the use cases more precise before starting the design.
+. Database architecture
+
+The ideas here are based on a real product https://elsci.io/meve/[Meve] - a service that stores internal and external
+information about the chemical compounds in a company.
+
+== The problem that we want to solve
 
 Typically, in pharma/biotech companies there's no visibility about who does what with which compounds.
 The teams and people could be duplicating efforts and nobody will notice that.
@@ -11,24 +20,26 @@ Additionally, the software systems are often disconnected, and if we're doing so
 from AppB, the user has to manually go and search for that info. Since scientists often need info from many systems,
 this makes data gathering very time-consuming.
 
-== Envision typical use
+== Scenarios/use cases
 
 This format of describing the requirements/use cases is called User Stories:
 
 . As a scientist, when drawing a compound in my ELN (or other software), I'd like to automatically see if someone has
 already done anything of interest with it (e.g. already synthesized it) so that I don't repeat the work.
+. As a scientist, when working on a compound, I'd like to include the info from the external vendors/partners about it
+so that I could get external help and speed up drug development.
 . As a team leader, I'd like to see the progress on the compound that we discussed during our last meeting, so
 that I could coordinate the next steps.
 . As a manager, I'd like to see the steps taken by different teams to work on the compounds (together with the stats
 like how much time the team worked on a compound, or the delay between steps). So that I see the bottlenecks and
 determine which steps of the process should be optimized first.
 
-== How the new software will help
+== What the product is going to do
 
 The new software is going to represent a database of everything useful happening to the compounds. We'll write
 scripts to periodically (or actively) loading the data from all interesting data sources.
 
-Different step of the process (e.g. compare Synthesis vs Bioassay) provides very different information. So to provide
+Different steps of the process (e.g. compare Synthesis vs Bioassay) provide very different information. So to provide
 a unified way of storing it, we treat everything as Events (e.g. a compound was PURIFIED - it's an event):
 
 * Compound info (structure, ID, pic) is common for all the events
@@ -37,3 +48,7 @@ a unified way of storing it, we treat everything as Events (e.g. a compound was 
 * Each event references a system the data came from: URL to the user-friendly info from that system, as well as an
 API URL for programmatic access. This way if the summary that's stored in the event isn't enough, at least user can
 follow the links to quickly find the rest.
+
+== Mockups
+
+Here's a small example of how you can draw the mockups: https://molbrett.elsci.io/scene#json=8jcPoLOWpI4
