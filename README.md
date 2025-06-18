@@ -12,8 +12,7 @@ This is a course for Enterprise/Web Software Developers. It goes into details of
 ## Types of databases
 
 * Log-structured Merge Trees (LSM)
-* [Heap-organized tables](./docs/heap-organized-table.adoc)
-* Index-organized tables (tables with Clustered Indices)
+* [Heap-organized vs Index-organized tables](docs/table-organization.adoc): the internal structure of the tables (heap vs. clustered index)
 * Document-oriented
 * Relational
 * Graph-oriented
