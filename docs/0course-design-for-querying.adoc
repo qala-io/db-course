@@ -118,6 +118,7 @@ migrations
 
 == Table organization
 
+* What are tables and indexes?
 * xref:table-organization.adoc[Heap-organized vs Index-organized tables]
 * Pages and page caches: when table scan is faster?
 * Because databases read data page-wise, B-tree is a more natural choice than the typical Binary Trees. While

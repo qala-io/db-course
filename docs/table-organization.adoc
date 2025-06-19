@@ -13,6 +13,8 @@ table file where the data can fit, and places the row there. If the table is new
 sequentially. But at some point `DELETE` & `UPDATE` happen, some space **in the middle** may get freed up, and it
 will be reused for the new rows.
 
+image::media/heap-organized.png[]
+
 So when selecting records, the order is not guaranteed. Databases will return them in the order they discover
 the records. Since the new row could’ve been inserted somewhere in the middle of the table, well.. c'est la vie.
 So if the order is important to the use case, you must always use `order by`.
@@ -47,6 +49,8 @@ BTW, do you want to get the physical location of the record? In Postgres you can
 
 The alternative to the Heap is storing the data sorted in the first place (the structure is called a B Tree).
 We can quickly navigate through such a hierarchy to quickly find some specific row.
+
+image::media/index-organized.png[]
 
 When sorting the records, the DBMS needs to know which attribute to order them by: for this you mark a column as a
 Primary Key (PK). In Heap-organized tables the PK didn't mean anything, but in Index-organized tables it's crucial.
