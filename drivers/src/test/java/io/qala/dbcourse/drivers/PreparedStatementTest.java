@@ -75,6 +75,23 @@ public class PreparedStatementTest {
             s.executeQuery(PG_QUERY_NO_PARAMS);
         }
     }
+    @Test
+    public void doesNotFetchAllRows_ifFetchSizeIsSet() throws Exception {
+        try (Connection c = connect(Map.of())) {
+            // fetchSize doesn't work with autoCommit=true, see PgStatement#executeInternal(), look for QUERY_FORWARD_CURSOR
+            c.setAutoCommit(false);
+            Statement s = c.createStatement();
+            s.setFetchSize(10);
+            ResultSet rs = s.executeQuery(PG_QUERY_NO_PARAMS);
+            int rowCnt = 0;
+            while (rs.next()) {
+                rs.getString(1);
+                rowCnt++;
+            }
+            System.out.println(rowCnt);
+            c.setAutoCommit(true);
+        }
+    }
 
     /**
      * C3P0 statement cache is useless for PG. PG already caches values inside using {@link CachedQuery},
