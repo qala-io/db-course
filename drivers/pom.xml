@@ -8,10 +8,14 @@
         <artifactId>pom</artifactId>
         <version>1.0-SNAPSHOT</version>
     </parent>
-    <artifactId>models</artifactId>
-    <description>Simplified implementation of databases to show how they work internally.</description>
+    <artifactId>drivers</artifactId>
+    <description>Different JDBC API and driver-specific features</description>
 
     <dependencies>
+        <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+        </dependency>
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
