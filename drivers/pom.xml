@@ -17,6 +17,11 @@
             <artifactId>postgresql</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.mariadb.jdbc</groupId>
+            <artifactId>mariadb-java-client</artifactId>
+            <version>3.5.7</version>
+        </dependency>
+        <dependency>
             <groupId>com.mchange</groupId>
             <artifactId>c3p0</artifactId>
         </dependency>
