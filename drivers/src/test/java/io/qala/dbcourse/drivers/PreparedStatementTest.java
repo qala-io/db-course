@@ -37,6 +37,35 @@ public class PreparedStatementTest {
         }
     }
     @Test
+    public void pgServerPrepStatementsAreDiscarded_ifCacheSizeExceeded() throws Exception {
+        Map<String, String> props = Map.of(
+                "prepareThreshold", "-1",
+                "preparedStatementCacheQueries", "2");
+        try(Connection c = connect(props)) {
+            PreparedStatement s = c.prepareStatement(PG_QUERY_NO_PARAMS);
+            s.executeQuery();
+            s.close();
+
+            s = c.prepareStatement(PG_QUERY_NO_PARAMS + " and true"); // generates another PS
+            s.executeQuery();
+            s.close();
+
+            s = c.prepareStatement(PG_QUERY_NO_PARAMS + " or false"); // yet another PS
+            s.executeQuery();
+            s.close();
+
+            s = c.prepareStatement(PG_QUERY_NO_PARAMS);
+            s.executeQuery();
+            s.close();
+            assertEquals("S_4", getPgStatementName(s));// can't reuse the query, it was evicted by the prev one
+
+            s = c.prepareStatement(PG_QUERY_NO_PARAMS);
+            s.executeQuery();
+            s.close();
+            assertEquals("S_4", getPgStatementName(s)); // reuses the query that's in the cache
+        }
+    }
+    @Test
     public void pgDoesNotAssignPreparedStatementName_andKeepsStatementsOneShot_untilPrepareThresholdReached() throws Exception {
         try(Connection c = connect(Map.of("prepareThreshold", "3"))) {
             PreparedStatement s = c.prepareStatement(PG_QUERY_ONE_PARAM);
