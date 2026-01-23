@@ -36,6 +36,38 @@ public class PreparedStatementTest {
             assertNull("Statement isn't borrowed from the pool if prev one wasn't closed", getPgStatementName(s));
         }
     }
+
+    @Test
+    public void pgDoesNotAssignPreparedStatementName_andKeepsStatementsOneShot_untilPrepareThresholdReached() throws Exception {
+        try (Connection c = connect(Map.of("prepareThreshold", "3"))) {
+            PreparedStatement s = c.prepareStatement(PG_QUERY_ONE_PARAM);
+            assertNull("Statement Name shouldn't be assigned before execution", getPgStatementName(s));
+            s.setInt(1, 1);
+            assertNotEquals(0, getRowCnt(s.executeQuery()));
+            assertNull(getPgStatementName(s));// the name isn't assigned, it's a One-Shot query:
+            s.close();
+
+            s = c.prepareStatement(PG_QUERY_ONE_PARAM);
+            s.setInt(1, 10);
+            s.executeQuery();
+            assertNull(getPgStatementName(s)); // still a One-Shot query:
+            s.close();
+
+            // reached threshold, the name is assigned and the result columns meta (from PG) is stored in CachedQuery
+            s = c.prepareStatement(PG_QUERY_ONE_PARAM);
+            s.setInt(1, 10);
+            s.executeQuery();
+            String statementName = getPgStatementName(s);
+            assertNotNull(statementName);
+            s.close();
+
+            // Finally instead of the whole query, we start sending the query name
+            s = c.prepareStatement(PG_QUERY_ONE_PARAM);
+            s.setInt(1, 10);
+            s.executeQuery();
+            assertEquals(statementName, getPgStatementName(s));
+        }
+    }
     @Test
     public void pgServerPrepStatementsAreDiscarded_ifCacheSizeExceeded() throws Exception {
         Map<String, String> props = Map.of(
@@ -63,31 +95,6 @@ public class PreparedStatementTest {
             s.executeQuery();
             s.close();
             assertEquals("S_4", getPgStatementName(s)); // reuses the query that's in the cache
-        }
-    }
-    @Test
-    public void pgDoesNotAssignPreparedStatementName_andKeepsStatementsOneShot_untilPrepareThresholdReached() throws Exception {
-        try(Connection c = connect(Map.of("prepareThreshold", "3"))) {
-            PreparedStatement s = c.prepareStatement(PG_QUERY_ONE_PARAM);
-            assertNull("Statement Name shouldn't be assigned before execution", getPgStatementName(s));
-            // the name isn't assigned, it's a One-Shot query:
-            s.setInt(1, 1);
-            assertNotEquals(0, getRowCnt(s.executeQuery()));
-            assertNull("One-Shot statements (those that didn't reach prepareThreshold) are not named, and the name isn't sent to PG",
-                    getPgStatementName(s));
-            assertNull(getPgStatementName(s));
-            s.close();
-            // still a One-Shot query:
-            s = c.prepareStatement(PG_QUERY_ONE_PARAM);
-            s.setInt(1, 10);
-            s.executeQuery();
-            assertNull(getPgStatementName(s));
-            s.close();
-            // finally prepareThreshold is reached, and the name gets assigned:
-            s = c.prepareStatement(PG_QUERY_ONE_PARAM);
-            s.setInt(1, 10);
-            s.executeQuery();
-            assertNotNull(getPgStatementName(s));
         }
     }
 
