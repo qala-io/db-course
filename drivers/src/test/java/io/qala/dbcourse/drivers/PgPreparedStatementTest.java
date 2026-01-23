@@ -10,7 +10,7 @@ import java.util.Map;
 import static io.qala.dbcourse.drivers.Utils.*;
 import static org.junit.Assert.*;
 
-public class PreparedStatementTest {
+public class PgPreparedStatementTest {
     private static final String QUERY_ONE_PARAM = "select * from information_schema.tables where length(table_name) > ?";
     private static final String QUERY_NO_PARAMS = "select * from information_schema.tables where length(table_name) > 5";
 
@@ -126,6 +126,36 @@ public class PreparedStatementTest {
             }
             System.out.println(rowCnt);
             c.setAutoCommit(true);
+        }
+    }
+
+    @Test
+    public void failsIfDdlCreatesColumnsBeforeQueryInSameStatetemnt() throws Exception {
+        // This seems like a bug - if a single PreparedStatement contains DDL & Query, the query seems to be
+        // validated before the DDL is issued and therefore we get an error that the table doesn't exist.
+        // This is exacerbated by the fact that PG uses server-prepared statements even for usual Statements.
+        //
+        // If we configure preferQueryMode=extendedForPrepared (see below), then at least Statement won't be prepared
+        // and this problem won't exist for it.
+        try (Connection c = connect(Map.of("prepareThreshold", "-1"))) {
+            Statement s = c.createStatement();
+            s.execute("drop table if exists t");
+            Exception e = assertThrows(Exception.class, () ->
+                    s.executeQuery("create table t (id text); select count(*) from t;"));
+            assertTrue("Actual: " + e.getMessage(), e.getMessage().startsWith("ERROR: relation \"t\" does not exist"));
+        }
+        // When Statement doesn't turn into a PreparedStatement (this happens only with prepareThreshold=-1), then
+        // we're good:
+        try (Connection c = connect(Map.of())) {
+            Statement s = c.createStatement();
+            s.execute("drop table if exists t");
+            s.execute("create table t (id text); select count(*) from t;");
+        }
+        // This forces to use Simple Query Protocol for Statements, and therefore no separate BIND is sent -> hence no error
+        try (Connection c = connect(Map.of("prepareThreshold", "-1", "preferQueryMode", "extendedForPrepared"))) {
+            Statement s = c.createStatement();
+            s.execute("drop table if exists t");
+            s.execute("create table t (id text); select count(*) from t;");
         }
     }
 
