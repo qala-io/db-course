@@ -1,6 +1,7 @@
 package io.qala.dbcourse.drivers;
 
 import com.mchange.v2.c3p0.ComboPooledDataSource;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.postgresql.core.CachedQuery;
 
@@ -11,6 +12,8 @@ import static io.qala.dbcourse.drivers.Utils.*;
 import static org.junit.Assert.*;
 
 public class PgPreparedStatementTest {
+    private static final String DDL = "create table if not exists blobs (data bytea)";
+    private static final String DDL2 = "create table if not exists users (name text)";
     private static final String QUERY_ONE_PARAM = "select * from information_schema.tables where length(table_name) > ?";
     private static final String QUERY_NO_PARAMS = "select * from information_schema.tables where length(table_name) > 5";
 
@@ -34,6 +37,51 @@ public class PgPreparedStatementTest {
 
             s = c.prepareStatement(QUERY_ONE_PARAM);
             assertNull("Statement isn't borrowed from the pool if prev one wasn't closed", getPgStatementName(s));
+        }
+    }
+    @Test @Ignore("for presentation")
+    public void _1_username() throws Exception {
+//        try(Connection c = connect(Map.of("prepareThreshold", "-1", "preferQueryMode", "extendedForPrepared"))) {
+//        try(Connection c = connect(Map.of("prepareThreshold", "-1"))) {
+        try(Connection c = connect(Map.of())) {
+            Statement s = c.createStatement();
+            s.execute(DDL2);
+            Statement insert = c.createStatement();
+            insert.execute("insert into users values('blah')");
+
+            PreparedStatement ps = c.prepareStatement("select * from users where name = ?");
+            ps.setString(1, "blah");
+            ps.executeQuery();
+        }
+    }
+
+    @Test @Ignore("for presentation")
+    public void blobsAreReturnedAsHexUntilStatementIsTrulyPrepared() throws Exception {
+//        try(Connection c = connect(Map.of("prepareThreshold", "-1"))) {
+        try(Connection c = connect(Map.of())) {
+            Statement s = c.createStatement();
+            s.execute(DDL);
+            PreparedStatement ps = c.prepareStatement("insert into blobs values(?)");
+            ps.setBytes(1, new byte[]{100, 0, 0, 1,1,1,13,'a'});
+            if(ps.executeUpdate() == 0) throw new RuntimeException("Didn't insert");
+
+            ps = c.prepareStatement("select * from blobs");
+            ps.executeQuery();
+        }
+    }
+    @Test @Ignore("for presentation")
+    public void mixDdlWithDml() throws Exception {
+//        try(Connection c = connect(Map.of("prepareThreshold", "-1", "preferQueryMode", "extendedForPrepared"))) {
+        try(Connection c = connect(Map.of("prepareThreshold", "-1"))) {
+            c.setAutoCommit(false);
+
+            Statement s = c.createStatement();
+            s.execute("""
+                      create table blah (id text);
+                      insert into blah values('1');
+                      """);
+
+            c.rollback();
         }
     }
 
